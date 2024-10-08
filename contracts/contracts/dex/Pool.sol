@@ -14,157 +14,157 @@ contract LiquidityPool is ReentrancyGuard, ERC20 {
 
     uint256 private constant MINIMUM_LIQUIDITY = 10 ** 3;
 
-    IERC20 public tokenA;
-    IERC20 public tokenB;
+    IERC20 public TVER;
+    IERC20 public THB;
 
-    uint256 public reserveA; // takes up single storage slot combined with reserveB
-    uint256 public reserveB;
+    uint256 public reserveTVER; // takes up single storage slot combined with reserveTHB
+    uint256 public reserveTHB;
 
-    uint256 fee = 3; // 0.3% fee // todo add to governance token utility to be uptaded
+    uint256 fee = 30; // 0.3% fee // todo add to governance token utility to be uptaded
 
-    event Mint(address indexed to, uint256 amountA, uint256 amountB);
-    event Burn(address indexed to, uint256 amountA, uint256 amountB);
+    event Mint(address indexed to, uint256 amountTVER, uint256 amountTHB);
+    event Burn(address indexed to, uint256 amountTVER, uint256 amountTHB);
     event Swap(
         address indexed sender,
-        uint256 amountAIn,
-        uint256 amountBIn,
-        uint256 amountAOut,
-        uint256 amountBOut
+        uint256 amountTVERIn,
+        uint256 amountTHBIn,
+        uint256 amountTVEROut,
+        uint256 amountTHBOut
     );
 
-    constructor(IERC20 _tokenA, IERC20 _tokenB) ERC20("LP Token", "LPT") {
-        tokenA = _tokenA;
-        tokenB = _tokenB;
+    constructor(IERC20 _TVER, IERC20 _THB) ERC20("TVER-THB LP Token", "TVER-THB-LPT") {
+        TVER = _TVER;
+        THB = _THB;
     }
 
     function mint(
         address to
     ) external nonReentrant returns (uint256 liquidity) {
-        uint256 _reserveA = reserveA; // Gas saving, prevents repeated use of SLOAD
-        uint256 _reserveB = reserveB; // Gas saving, prevents repeated use of SLOAD
-        uint256 balanceA = tokenA.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
-        uint256 balanceB = tokenB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+        uint256 _reserveTVER = reserveTVER; // Gas saving, prevents repeated use of SLOAD
+        uint256 _reserveTHB = reserveTHB; // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTVER = TVER.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTHB = THB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
 
-        uint256 amountA = balanceA > _reserveA ? balanceA - _reserveA : 0;
-        uint256 amountB = balanceB > _reserveB ? balanceB - _reserveB : 0;
+        uint256 amountTVER = balanceTVER > _reserveTVER ? balanceTVER - _reserveTVER : 0;
+        uint256 amountTHB = balanceTHB > _reserveTHB ? balanceTHB - _reserveTHB : 0;
 
         uint256 totalSupply = totalSupply(); //Gas saving, prevents repeated use of SLOAD
 
         if (totalSupply == 0) {
-            liquidity = Math.sqrt(amountA * amountB) - MINIMUM_LIQUIDITY;
+            liquidity = Math.sqrt(amountTVER * amountTHB) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // makes sure no one can hold 100% of the pool and gatekeep it by manupulating token balances
         } else {
             liquidity = Math.min(
-                (amountA * totalSupply) / _reserveA,
-                (amountB * totalSupply) / _reserveB
+                (amountTVER * totalSupply) / _reserveTVER,
+                (amountTHB * totalSupply) / _reserveTHB
             );
             _mint(to, liquidity);
         }
         require(liquidity > 0, "Liquidity amount must be greater than 0");
 
-        _updateReserves(balanceA, balanceB);
+        _updateReserves(balanceTVER, balanceTHB);
 
-        emit Mint(to, amountA, amountB);
+        emit Mint(to, amountTVER, amountTHB);
     }
 
     function burn(
         address to
-    ) external nonReentrant returns (uint256 amountA, uint256 amountB) {
-        IERC20 _tokenA = tokenA; // Gas saving, prevents repeated use of SLOAD
-        IERC20 _tokenB = tokenB; // Gas saving, prevents repeated use of SLOAD
-        uint256 balanceA = _tokenA.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
-        uint256 balanceB = _tokenB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+    ) external nonReentrant returns (uint256 amountTVER, uint256 amountTHB) {
+        IERC20 _TVER = TVER; // Gas saving, prevents repeated use of SLOAD
+        IERC20 _THB = THB; // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTVER = _TVER.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTHB = _THB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
         uint256 liquidity = balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
 
         uint256 _totalSupply = totalSupply(); // Gas saving, prevents repeated use of SLOAD
 
-        amountA = (liquidity * balanceA) / _totalSupply;
-        amountB = (liquidity * balanceB) / _totalSupply;
-        require(amountA > 0 && amountB > 0, "Amounts must be greater than 0");
+        amountTVER = (liquidity * balanceTVER) / _totalSupply;
+        amountTHB = (liquidity * balanceTHB) / _totalSupply;
+        require(amountTVER > 0 && amountTHB > 0, "Amounts must be greater than 0");
 
         _burn(address(this), liquidity);
 
-        _tokenA.safeTransfer(to, amountA);
-        _tokenB.safeTransfer(to, amountB);
+        _TVER.safeTransfer(to, amountTVER);
+        _THB.safeTransfer(to, amountTHB);
 
-        balanceA = _tokenA.balanceOf(address(this)); // Update balanceA after transfer token transfers
-        balanceB = _tokenB.balanceOf(address(this)); // Update balanceB after token transfers
+        balanceTVER = _TVER.balanceOf(address(this)); // Update balanceTVER after transfer token transfers
+        balanceTHB = _THB.balanceOf(address(this)); // Update balanceTHB after token transfers
 
-        _updateReserves(balanceA, balanceB);
+        _updateReserves(balanceTVER, balanceTHB);
 
-        emit Burn(to, amountA, amountB);
+        emit Burn(to, amountTVER, amountTHB);
     }
 
     function swap(
-        uint256 amountAOut,
-        uint256 amountBOut,
+        uint256 amountTVEROut,
+        uint256 amountTHBOut,
         address to
     ) external nonReentrant {
-        require(amountAOut > 0 || amountBOut > 0, "Both amounts cannot be 0");
-        uint256 _reserveA = reserveA; // Gas saving, prevents repeated use of SLOAD
-        uint256 _reserveB = reserveB; // Gas saving, prevents repeated use of SLOAD
+        require(amountTVEROut > 0 || amountTHBOut > 0, "Both amounts cannot be 0");
+        uint256 _reserveTVER = reserveTVER; // Gas saving, prevents repeated use of SLOAD
+        uint256 _reserveTHB = reserveTHB; // Gas saving, prevents repeated use of SLOAD
         require(
-            amountAOut < _reserveA && amountBOut < _reserveB,
+            amountTVEROut < _reserveTVER && amountTHBOut < _reserveTHB,
             "Insufficient liquidity"
         );
 
-        IERC20 _tokenA = tokenA; // Gas saving, prevents repeated use of SLOAD
-        IERC20 _tokenB = tokenB; // Gas saving, prevents repeated use of SLOAD
+        IERC20 _TVER = TVER; // Gas saving, prevents repeated use of SLOAD
+        IERC20 _THB = THB; // Gas saving, prevents repeated use of SLOAD
 
         require(
-            to != address(_tokenA) && to != address(_tokenB),
+            to != address(_TVER) && to != address(_THB),
             "Invalid recipient"
         );
-        if (amountAOut > 0) {
-            _tokenA.safeTransfer(to, amountAOut);
+        if (amountTVEROut > 0) {
+            _TVER.safeTransfer(to, amountTVEROut);
         }
-        if (amountBOut > 0) {
-            _tokenB.safeTransfer(to, amountBOut);
+        if (amountTHBOut > 0) {
+            _THB.safeTransfer(to, amountTHBOut);
         }
-        uint256 balanceA = _tokenA.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
-        uint256 balanceB = _tokenB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTVER = _TVER.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
+        uint256 balanceTHB = _THB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
 
-        uint256 amountAIn = balanceA > _reserveA - amountAOut
-            ? balanceA - (_reserveA - amountAOut)
+        uint256 amountTVERIn = balanceTVER > _reserveTVER - amountTVEROut
+            ? balanceTVER - (_reserveTVER - amountTVEROut)
             : 0;
-        uint256 amountBIn = balanceB > _reserveB - amountBOut
-            ? balanceB - (_reserveB - amountBOut)
+        uint256 amountTHBIn = balanceTHB > _reserveTHB - amountTHBOut
+            ? balanceTHB - (_reserveTHB - amountTHBOut)
             : 0;
-        require(amountAIn > 0 || amountBIn > 0, "Insufficient input amount");
+        require(amountTVERIn > 0 || amountTHBIn > 0, "Insufficient input amount");
 
         uint256 _fee = fee;
-        uint256 balanceAAdjusted = (balanceA * 1000) - (amountAIn * _fee);
-        uint256 balanceBAdjusted = (balanceB * 1000) - (amountBIn * _fee);
+        uint256 balanceTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * _fee);
+        uint256 balanceTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * _fee);
         //todo fee management for protocol fees will be added here
 
         require(
-            balanceAAdjusted * balanceBAdjusted >=
-                uint256(_reserveA) * _reserveB * 1000 ** 2,
+            balanceTVERAdjusted * balanceTHBAdjusted >=
+                uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
             "K invariant not maintained"
         );
 
-        _updateReserves(balanceA, balanceB);
+        _updateReserves(balanceTVER, balanceTHB);
 
-        emit Swap(msg.sender, amountAIn, amountBIn, amountAOut, amountBOut);
+        emit Swap(msg.sender, amountTVERIn, amountTHBIn, amountTVEROut, amountTHBOut);
     }
 
     function skim(address to) external nonReentrant {
-        IERC20 _tokenA = tokenA; // Gas saving, prevents repeated use of SLOAD
-        IERC20 _tokenB = tokenB; // Gas saving, prevents repeated use of SLOAD
+        IERC20 _TVER = TVER; // Gas saving, prevents repeated use of SLOAD
+        IERC20 _THB = THB; // Gas saving, prevents repeated use of SLOAD
 
-        _tokenA.safeTransfer(to, _tokenA.balanceOf(address(this)) - reserveA);
-        _tokenB.safeTransfer(to, _tokenB.balanceOf(address(this)) - reserveB);
+        _TVER.safeTransfer(to, _TVER.balanceOf(address(this)) - reserveTVER);
+        _THB.safeTransfer(to, _THB.balanceOf(address(this)) - reserveTHB);
     }
 
     function sync() external nonReentrant {
         _updateReserves(
-            tokenA.balanceOf(address(this)),
-            tokenB.balanceOf(address(this))
+            TVER.balanceOf(address(this)),
+            THB.balanceOf(address(this))
         );
     }
 
-    function _updateReserves(uint256 _balanceA, uint256 _balanceB) internal {
-        reserveA = uint128(_balanceA);
-        reserveB = uint128(_balanceB);
+    function _updateReserves(uint256 balanceTVER, uint256 balanceTHB) internal {
+        reserveTVER = uint128(balanceTVER);
+        reserveTHB = uint128(balanceTHB);
     }
 }
