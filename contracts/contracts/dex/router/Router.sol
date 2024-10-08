@@ -9,6 +9,7 @@ import {IPool} from "../pair/IPool.sol";
 
 contract Router is ReentrancyGuard {
     using SafeERC20 for IERC20;
+    using SafeERC20 for IPool;
 
     IPool public pool;
     IERC20 public TVER;
@@ -30,7 +31,7 @@ contract Router is ReentrancyGuard {
         uint256 amountTHBDesired,
         uint256 amountTVERMin,
         uint256 amountTHBMin,
-        address to,
+        address recipient,
         uint256 deadline
     ) external nonReentrant validDeadline(deadline) {
         IPool p = pool;
@@ -58,22 +59,60 @@ contract Router is ReentrancyGuard {
 
         TVER.safeTransferFrom(msg.sender, address(p), amountTVER);
         THB.safeTransferFrom(msg.sender, address(p), amountTHB);
-        p.mint(to);
+        p.mint(recipient);
     }
     
-
-    //todo remove LP
+    function removeLiquidity(
+        uint256 liquidityAmount,
+        uint256 amountTVERMin,
+        uint256 amountTHBMin,
+        address recipient,
+        uint256 deadline
+    ) external nonReentrant validDeadline(deadline) {
+        IPool p = pool;
+        p.safeTransferFrom(msg.sender, address(p), liquidityAmount);
+        (uint256 amountTVER, uint256 amountTHB) = p.burn(recipient);
+        require(amountTVER >= amountTVERMin, "Router: insufficient TVER amount");
+        require(amountTHB >= amountTHBMin, "Router: insufficient THB amount");
+    }
 
     //todo swap 
 
+    function swapExactTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        uint8 direction,
+        address recipient,
+        uint256 deadline
+    ) external nonReentrant validDeadline(deadline) {
+        IPool p = pool;
+        (uint256 reserveTVER, uint256 reserveTHB) = p.getReserves();
+        require(amountIn > 0, "Router: insufficient amount");
+        require(reserveTVER > 0 && reserveTHB > 0, "Router: insufficient liquidity");
+
+        uint256 amountOut;
+        if (direction == 0) {
+            amountOut = quote(amountIn, reserveTVER, reserveTHB);
+            require(amountOut >= amountOutMin, "Router: insufficient output amount");
+            TVER.safeTransferFrom(msg.sender, address(p), amountIn);
+            p.swap(amountOut, 0, recipient);
+        } else {
+            amountOut = quote(amountIn, reserveTHB, reserveTVER);
+            require(amountOut >= amountOutMin, "Router: insufficient output amount");
+            THB.safeTransferFrom(msg.sender, address(p), amountIn);
+            p.swap(0, amountOut, recipient);
+        }
+    }
+
     //todo quote
 
-    function quote(uint256 amountA, uint256 reserveA, uint256 reserveB) internal pure returns (uint256) {
+    function quote(uint256 amountA, uint256 reserveA, uint256 reserveB) private pure returns (uint256) {
         require(amountA > 0, 'Router: insufficient amount');
         require(reserveA > 0 && reserveB > 0, 'Router: insufficient liquidity');
         uint256 amountB = (amountA * reserveB) / reserveA;
         return amountB;
     }
+
 
     //todo getAmountOut
 }
