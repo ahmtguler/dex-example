@@ -7,8 +7,9 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {IPool} from "./IPool.sol";
 
-contract LiquidityPool is ReentrancyGuard, ERC20 {
+contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
@@ -161,6 +162,10 @@ contract LiquidityPool is ReentrancyGuard, ERC20 {
             TVER.balanceOf(address(this)),
             THB.balanceOf(address(this))
         );
+    }
+
+    function getReserves() external view returns (uint256, uint256) {
+        return (reserveTVER, reserveTHB);
     }
 
     function _updateReserves(uint256 balanceTVER, uint256 balanceTHB) internal {
