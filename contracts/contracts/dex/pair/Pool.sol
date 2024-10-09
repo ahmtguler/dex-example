@@ -23,8 +23,16 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
     uint256 public reserveTVER; // takes up single storage slot combined with reserveTHB
     uint256 public reserveTHB;
 
-    event Mint(address indexed recipient, uint256 amountTVER, uint256 amountTHB);
-    event Burn(address indexed recipient, uint256 amountTVER, uint256 amountTHB);
+    event Mint(
+        address indexed recipient,
+        uint256 amountTVER,
+        uint256 amountTHB
+    );
+    event Burn(
+        address indexed recipient,
+        uint256 amountTVER,
+        uint256 amountTHB
+    );
     event Swap(
         address indexed sender,
         uint256 amountTVERIn,
@@ -32,8 +40,14 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
         uint256 amountTVEROut,
         uint256 amountTHBOut
     );
+    event Sync(uint256 reserveTVER, uint256 reserveTHB);
+    event Skim(address indexed recipient, uint256 amountTVER, uint256 amountTHB);
 
-    constructor(IFeeManager _FEE_MANAGER, IERC20 _TVER, IERC20 _THB) ERC20("TVER-THB LP Token", "TVER-THB-LPT") {
+    constructor(
+        IFeeManager _FEE_MANAGER,
+        IERC20 _TVER,
+        IERC20 _THB
+    ) ERC20("TVER-THB LP Token", "TVER-THB-LPT") {
         FEE_MANAGER = _FEE_MANAGER;
         TVER = _TVER;
         THB = _THB;
@@ -47,14 +61,19 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
         uint256 balanceTVER = TVER.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
         uint256 balanceTHB = THB.balanceOf(address(this)); // Gas saving, prevents repeated use of SLOAD
 
-        uint256 amountTVER = balanceTVER > _reserveTVER ? balanceTVER - _reserveTVER : 0;
-        uint256 amountTHB = balanceTHB > _reserveTHB ? balanceTHB - _reserveTHB : 0;
+        uint256 amountTVER = balanceTVER > _reserveTVER
+            ? balanceTVER - _reserveTVER
+            : 0;
+        uint256 amountTHB = balanceTHB > _reserveTHB
+            ? balanceTHB - _reserveTHB
+            : 0;
 
         uint256 totalSupply = totalSupply(); //Gas saving, prevents repeated use of SLOAD
 
         if (totalSupply == 0) {
             liquidity = Math.sqrt(amountTVER * amountTHB) - MINIMUM_LIQUIDITY;
-            _mint(address(0), MINIMUM_LIQUIDITY); // makes sure no one can hold 100% of the pool and gatekeep it by manupulating token balances
+            // below line makes sure no one can hold 100% of the pool and gatekeep it by manupulating token balances
+            _mint(address(0), MINIMUM_LIQUIDITY); 
         } else {
             liquidity = Math.min(
                 (amountTVER * totalSupply) / _reserveTVER,
@@ -82,7 +101,10 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
 
         amountTVER = (liquidity * balanceTVER) / _totalSupply;
         amountTHB = (liquidity * balanceTHB) / _totalSupply;
-        require(amountTVER > 0 && amountTHB > 0, "Amounts must be greater than 0");
+        require(
+            amountTVER > 0 && amountTHB > 0,
+            "Amounts must be greater than 0"
+        );
 
         _burn(address(this), liquidity);
 
@@ -102,7 +124,10 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
         uint256 amountTHBOut,
         address recipient
     ) external nonReentrant {
-        require(amountTVEROut > 0 || amountTHBOut > 0, "Both amounts cannot be 0");
+        require(
+            amountTVEROut > 0 || amountTHBOut > 0,
+            "Both amounts cannot be 0"
+        );
         uint256 _reserveTVER = reserveTVER; // Gas saving, prevents repeated use of SLOAD
         uint256 _reserveTHB = reserveTHB; // Gas saving, prevents repeated use of SLOAD
         require(
@@ -132,33 +157,65 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
         uint256 amountTHBIn = balanceTHB > _reserveTHB - amountTHBOut
             ? balanceTHB - (_reserveTHB - amountTHBOut)
             : 0;
-        require(amountTVERIn > 0 || amountTHBIn > 0, "Insufficient input amount");
-        
-        { // scope to avoid stack too deep error
-            uint16 _fee = FEE_MANAGER.getFee();
-            uint256 balanceTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * _fee);
-            uint256 balanceTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * _fee);
-            
-            //todo fee management for protocol fees will be added here
-            
+        require(
+            amountTVERIn > 0 || amountTHBIn > 0,
+            "Insufficient input amount"
+        );
+
+        {
+            // scope to avoid stack too deep error
+            (uint16 providerFee, uint16 platformFee) = FEE_MANAGER.getFees();
+
+            if (platformFee > 0) {
+                uint256 tverFee = (amountTVERIn * platformFee) / 10000;
+                if (tverFee > 0) {
+                    _TVER.safeTransfer(address(FEE_MANAGER), tverFee);
+                }
+
+                uint256 thbFee = (amountTHBIn * platformFee) / 10000;
+                if (thbFee > 0) {
+                    _THB.safeTransfer(address(FEE_MANAGER), thbFee);
+                }
+            }
+
+            balanceTVER = _TVER.balanceOf(address(this)); // Update balanceTVER after transfer token transfers
+            balanceTHB = _THB.balanceOf(address(this)); // Update balanceTHB after token transfers
+            uint256 balTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * providerFee);
+            uint256 balTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * providerFee);
+
             require(
-                balanceTVERAdjusted * balanceTHBAdjusted >=
-                    uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
+                balTVERAdjusted * balTHBAdjusted >= uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
                 "K invariant not maintained"
             );
         }
-        
+
         _updateReserves(balanceTVER, balanceTHB);
 
-        emit Swap(msg.sender, amountTVERIn, amountTHBIn, amountTVEROut, amountTHBOut);
+        emit Swap(
+            msg.sender,
+            amountTVERIn,
+            amountTHBIn,
+            amountTVEROut,
+            amountTHBOut
+        );
     }
 
     function skim(address recipient) external nonReentrant {
         IERC20 _TVER = TVER; // Gas saving, prevents repeated use of SLOAD
         IERC20 _THB = THB; // Gas saving, prevents repeated use of SLOAD
+        uint256 amountTVER = _TVER.balanceOf(address(this)) - reserveTVER;
+        uint256 amountTHB = _THB.balanceOf(address(this)) - reserveTHB;
 
-        _TVER.safeTransfer(recipient, _TVER.balanceOf(address(this)) - reserveTVER);
-        _THB.safeTransfer(recipient, _THB.balanceOf(address(this)) - reserveTHB);
+        _TVER.safeTransfer(
+            recipient,
+            amountTVER
+        );
+        _THB.safeTransfer(
+            recipient,
+            amountTHB
+        );
+
+        emit Skim(recipient, amountTVER, amountTHB);
     }
 
     function sync() external nonReentrant {
@@ -166,6 +223,7 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
             TVER.balanceOf(address(this)),
             THB.balanceOf(address(this))
         );
+        emit Sync(reserveTVER, reserveTHB);
     }
 
     function getReserves() external view returns (uint256, uint256) {

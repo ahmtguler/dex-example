@@ -121,7 +121,7 @@ contract Router is ReentrancyGuard {
     function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut) private view returns (uint256) {
         require(amountIn > 0, 'Router: insufficient amount');
         require(reserveIn > 0 && reserveOut > 0, 'Router: insufficient liquidity');
-        uint256 amountInWithFee = amountIn * (10_000 - feeManager.getFee());
+        uint256 amountInWithFee = amountIn * (10_000 - feeManager.getTotalFee());
         uint256 numerator = amountInWithFee * reserveOut;
         uint256 denominator = (reserveIn * 10_000) + amountInWithFee;
         return (numerator / denominator);
