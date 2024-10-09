@@ -133,18 +133,21 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
             ? balanceTHB - (_reserveTHB - amountTHBOut)
             : 0;
         require(amountTVERIn > 0 || amountTHBIn > 0, "Insufficient input amount");
-
-        uint16 _fee = FEE_MANAGER.getFee();
-        uint256 balanceTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * _fee);
-        uint256 balanceTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * _fee);
-        //todo fee management for protocol fees will be added here
-
-        require(
-            balanceTVERAdjusted * balanceTHBAdjusted >=
-                uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
-            "K invariant not maintained"
-        );
-
+        
+        { // scope to avoid stack too deep error
+            uint16 _fee = FEE_MANAGER.getFee();
+            uint256 balanceTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * _fee);
+            uint256 balanceTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * _fee);
+            
+            //todo fee management for protocol fees will be added here
+            
+            require(
+                balanceTVERAdjusted * balanceTHBAdjusted >=
+                    uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
+                "K invariant not maintained"
+            );
+        }
+        
         _updateReserves(balanceTVER, balanceTHB);
 
         emit Swap(msg.sender, amountTVERIn, amountTHBIn, amountTVEROut, amountTHBOut);
