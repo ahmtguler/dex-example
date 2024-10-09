@@ -2,7 +2,8 @@
 
 import "@rainbow-me/rainbowkit/styles.css";
 import * as React from "react";
-import { RainbowKitProvider, getDefaultConfig} from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, getDefaultConfig, lightTheme, darkTheme } from "@rainbow-me/rainbowkit";
+import { useTheme } from "next-themes"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   WagmiProvider,
@@ -31,11 +32,25 @@ export function Providers({
   cookie: string;
   children: React.ReactNode;
 }) {
+  const { theme } = useTheme()
+  const rainbowTheme =
+    theme === 'dark' ?
+      darkTheme(
+        {
+          accentColor: "#8B00C2",
+        }
+      ) :
+      lightTheme(
+        {
+          accentColor: "#8B00C2",
+        }
+      )
   const initialState = cookieToInitialState(config, cookie);
   return (
     <WagmiProvider config={config} {...(initialState ? { initialState } : {})}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
+          theme={rainbowTheme}
           showRecentTransactions={true}
           coolMode={true}
         >{children}</RainbowKitProvider>
