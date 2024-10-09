@@ -11,12 +11,12 @@ import {
   cookieToInitialState,
   createStorage,
 } from "wagmi";
-import { mainnet, base } from "wagmi/chains";
+import { mainnet, base, hardhat } from "wagmi/chains";
 
 export const config = getDefaultConfig({
   appName: "RainbowKit demo",
   projectId: "1b8eaa85a996988993be008f82249011",
-  chains: [mainnet, base],
+  chains: [mainnet, base, hardhat],
   ssr: true,
   storage: createStorage({
     storage: cookieStorage,
