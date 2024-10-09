@@ -10,7 +10,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {IPool} from "./IPool.sol";
 import {IFeeManager} from "../../fee-manager/IFeeManager.sol";
 
-contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
+contract Pool is ReentrancyGuard, ERC20, IPool {
     using SafeERC20 for IERC20;
     using Math for uint256;
 
