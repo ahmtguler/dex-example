@@ -35,23 +35,14 @@ export function Providers({
   const { theme } = useTheme()
   const rainbowTheme =
     theme === 'dark' ?
-      darkTheme(
-        {
-          accentColor: "#8B00C2",
-        }
-      ) :
-      lightTheme(
-        {
-          accentColor: "#8B00C2",
-        }
-      )
+      darkTheme() :
+      lightTheme();
   const initialState = cookieToInitialState(config, cookie);
   return (
     <WagmiProvider config={config} {...(initialState ? { initialState } : {})}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           theme={rainbowTheme}
-          showRecentTransactions={true}
           coolMode={true}
         >{children}</RainbowKitProvider>
       </QueryClientProvider>

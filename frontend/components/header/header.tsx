@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import Connect from "@/components/header/connect"
-import {BadgeDollarSign} from "lucide-react"
+import Connect from "./connect"
+import { Navigation } from './navigation'
+import { BadgeDollarSign } from "lucide-react"
 import ThemeToggle from "@/components/theme-toggle";
 
 export default function Header() {
@@ -13,22 +14,22 @@ export default function Header() {
           <div className="flex items-center justify-start">
             {/* Logo and Name */}
             <div className="flex items-center mr-4">
-                <BadgeDollarSign size={32} />
-              <Link href="/" className="text-3xl font-bold">
+              <BadgeDollarSign size={32} />
+              <Link href="/" className="text-2xl font-bold">
                 DEX
               </Link>
             </div>
-
-
+            {/* Navigation */}
+            <Navigation />
           </div>
           {/* Connect Button */}
           <div className="flex items-center justify-end gap-3">
-          {/* Connect Button */}
-          <div className='flex justify-end'>
-            <Connect />
-          </div>
-          {/* Mode Toggle */}
-          <ThemeToggle />
+            {/* Connect Button */}
+            <div className='flex justify-end'>
+              <Connect />
+            </div>
+            {/* Mode Toggle */}
+            <ThemeToggle />
           </div>
         </div>
       </div>
