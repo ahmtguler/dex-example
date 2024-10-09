@@ -10,31 +10,26 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract FeeManager is IFeeManager, Ownable {
     using SafeERC20 for IERC20;
 
-    uint16 public liquditiyProviderFee;
-    uint16 public platformFee;
+    uint16 private _liquditiyProviderFee;
+    uint16 private _platformFee;
 
     constructor(
-        uint16 _liquditiyProviderFee,
-        uint16 _platformFee,
+        uint16 liquditiyProviderFee,
+        uint16 platformFee,
         address _governor
     ) Ownable(_governor) {
-        liquditiyProviderFee = _liquditiyProviderFee;
-        platformFee = _platformFee;
-
+        _liquditiyProviderFee = liquditiyProviderFee;
+        _platformFee = platformFee;
     }
 
-    function getFees() external view returns (uint16, uint16) {
-        return (liquditiyProviderFee, platformFee);
+    function getFees() external view returns (uint16 liquditiyProviderFee, uint16 platformFee, uint16 totalFee) {
+        return (_liquditiyProviderFee, _platformFee, _liquditiyProviderFee + _platformFee);
     }
 
-    function getTotalFee() external view returns (uint16) {
-        return liquditiyProviderFee + platformFee;
-    }
-
-    function setFees(uint16 _liquditiyProviderFee, uint16 _platformFee) external onlyOwner {
-        require(_liquditiyProviderFee + _platformFee <= 500, "FeeManager: fees too high");
-        liquditiyProviderFee = _liquditiyProviderFee;
-        platformFee = _platformFee;
+    function setFees(uint16 liquditiyProviderFee, uint16 platformFee) external onlyOwner {
+        require(liquditiyProviderFee + platformFee <= 5000, "FeeManager: fees too high");
+        _liquditiyProviderFee = liquditiyProviderFee;
+        _platformFee = platformFee;
     }
 
     function transferETH(address payable to, uint256 amount) external onlyOwner {

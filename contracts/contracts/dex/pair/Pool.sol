@@ -164,29 +164,29 @@ contract LiquidityPool is ReentrancyGuard, ERC20, IPool {
 
         {
             // scope to avoid stack too deep error
-            (uint16 providerFee, uint16 platformFee) = FEE_MANAGER.getFees();
+            (, uint16 platformFee, uint16 totalFee) = FEE_MANAGER.getFees();
 
-            if (platformFee > 0) {
-                uint256 tverFee = (amountTVERIn * platformFee) / 10000;
-                if (tverFee > 0) {
-                    _TVER.safeTransfer(address(FEE_MANAGER), tverFee);
-                }
-
-                uint256 thbFee = (amountTHBIn * platformFee) / 10000;
-                if (thbFee > 0) {
-                    _THB.safeTransfer(address(FEE_MANAGER), thbFee);
-                }
-            }
-
-            balanceTVER = _TVER.balanceOf(address(this)); // Update balanceTVER after transfer token transfers
-            balanceTHB = _THB.balanceOf(address(this)); // Update balanceTHB after token transfers
-            uint256 balTVERAdjusted = (balanceTVER * 10_000) - (amountTVERIn * providerFee);
-            uint256 balTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * providerFee);
+            uint256 balTVERAdjusted = ((balanceTVER) * 10_000) - (amountTVERIn * totalFee);
+            uint256 balTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * totalFee);
 
             require(
-                balTVERAdjusted * balTHBAdjusted >= uint256(_reserveTVER) * _reserveTHB * 1000 ** 2,
+                balTVERAdjusted * balTHBAdjusted >= _reserveTVER * _reserveTHB * 10_000 ** 2,
                 "K invariant not maintained"
             );
+
+            if (platformFee > 0) {
+                uint256 tverFee = (amountTVERIn * platformFee) / 10_000;
+                if (tverFee > 0) {
+                    _TVER.safeTransfer(address(FEE_MANAGER), tverFee);
+                    balanceTVER = _TVER.balanceOf(address(this)); // Update balanceTVER after token transfer
+                }
+
+                uint256 thbFee = (amountTHBIn * platformFee) / 10_000;
+                if (thbFee > 0) {
+                    _THB.safeTransfer(address(FEE_MANAGER), thbFee);
+                    balanceTHB = _THB.balanceOf(address(this)); // Update balanceTHB after token transfer
+                }
+            }
         }
 
         _updateReserves(balanceTVER, balanceTHB);
