@@ -11,12 +11,12 @@ import {
   cookieToInitialState,
   createStorage,
 } from "wagmi";
-import { mainnet, base, hardhat } from "wagmi/chains";
+import { hardhat, sepolia } from "wagmi/chains";
 
 export const config = getDefaultConfig({
   appName: "RainbowKit demo",
   projectId: "1b8eaa85a996988993be008f82249011",
-  chains: [mainnet, base, hardhat],
+  chains: [hardhat, sepolia],
   ssr: true,
   storage: createStorage({
     storage: cookieStorage,
@@ -35,8 +35,12 @@ export function Providers({
   const { theme } = useTheme()
   const rainbowTheme =
     theme === 'dark' ?
-      darkTheme() :
-      lightTheme();
+      darkTheme({
+        accentColor: "#865AC7",
+      }) :
+      lightTheme({
+        accentColor: "#865AC7",
+      });
   const initialState = cookieToInitialState(config, cookie);
   return (
     <WagmiProvider config={config} {...(initialState ? { initialState } : {})}>
