@@ -15,13 +15,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowDown, ArrowUpDown } from "lucide-react"
 
-export default function Home() {
+export default function Swap() {
     const [amountTVER, setAmountTVER] = React.useState('');
     const [amountTHB, setAmountTHB] = React.useState('');
     const [direction, setDirection] = React.useState("tver-to-thb");
     return (
         <div className="flex flex-col items-center justify-center mt-32">
-            <Card className="w-[350px]">
+            <Card className="w-[400px]">
                 <CardHeader>
                     <CardTitle>Swap</CardTitle>
                     <CardDescription>Swap between TVER and THB tokens</CardDescription>
