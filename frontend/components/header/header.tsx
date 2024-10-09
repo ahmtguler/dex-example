@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Connect from "./connect"
+import Connect from "../connect"
 import { Navigation } from './navigation'
 import { BadgeDollarSign } from "lucide-react"
 import ThemeToggle from "@/components/theme-toggle";
