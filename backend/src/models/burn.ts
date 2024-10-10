@@ -1,23 +1,15 @@
 import { Schema, model } from "mongoose";
 
-const swapSchema = new Schema({
+const burnSchema = new Schema({
     recipient: {
         type: String,
         required: true,
     },
-    tokenIn: {
+    amountTVER: {
         type: String,
         required: true,
     },
-    amountIn: {
-        type: String,
-        required: true,
-    },
-    tokenOut: {
-        type: String,
-        required: true,
-    },
-    amountOut: {
+    amountTHB: {
         type: String,
         required: true,
     },
@@ -27,4 +19,4 @@ const swapSchema = new Schema({
     },
 });
 
-export default model("Swap", swapSchema);
+export default model("Burn", burnSchema);
