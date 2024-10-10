@@ -36,7 +36,7 @@ contract Router is ReentrancyGuard {
         _;
     }
 
-    function addTVERTHBLiquidity(
+    function addLiquidity(
         uint256 amountTVERDesired,
         uint256 amountTHBDesired,
         uint256 amountTVERMin,
