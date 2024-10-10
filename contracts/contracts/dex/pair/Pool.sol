@@ -73,15 +73,15 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         if (totalSupply == 0) {
             liquidity = Math.sqrt(amountTVER * amountTHB) - MINIMUM_LIQUIDITY;
             // below line makes sure no one can hold 100% of the pool and gatekeep it by manupulating token balances
-            _mint(address(0), MINIMUM_LIQUIDITY); 
+            _mint(0x0000000000000000000000000000000000000001, MINIMUM_LIQUIDITY); 
         } else {
             liquidity = Math.min(
                 (amountTVER * totalSupply) / _reserveTVER,
                 (amountTHB * totalSupply) / _reserveTHB
             );
-            _mint(recipient, liquidity);
         }
         require(liquidity > 0, "Liquidity amount must be greater than 0");
+        _mint(recipient, liquidity);
 
         _updateReserves(balanceTVER, balanceTHB);
 

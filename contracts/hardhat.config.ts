@@ -1,5 +1,9 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-verify";
+import "@nomiclabs/hardhat-solhint";
+import 'solidity-coverage';
+import 'hardhat-log-remover';
 
 const config: HardhatUserConfig = {
   solidity: {

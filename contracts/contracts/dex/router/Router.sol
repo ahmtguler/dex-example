@@ -79,6 +79,7 @@ contract Router is ReentrancyGuard {
         address recipient,
         uint256 deadline
     ) external nonReentrant validDeadline(deadline) {
+        require(liquidityAmount > 0, "Router: insufficient liquidity amount");
         IPool p = pool;
         p.safeTransferFrom(msg.sender, address(p), liquidityAmount);
         (uint256 amountTVER, uint256 amountTHB) = p.burn(recipient);
