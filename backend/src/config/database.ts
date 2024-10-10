@@ -5,7 +5,7 @@ dotenv.config();
 export const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI as string, {
-            dbName: "just-pay",
+            dbName: "dex",
         });
         console.log(`MongoDB connected: ${conn.connection.host}`);
     } catch (error: any) {
