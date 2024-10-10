@@ -6,10 +6,16 @@
     "@types/bun": "latest",
     "@types/express": "^5.0.0"
   },
+  "scripts": {
+    "dev": "bun run index.ts"
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "express": "^4.21.1"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.3",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.1"
   }
 }

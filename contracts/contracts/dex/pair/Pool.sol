@@ -34,7 +34,7 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         uint256 amountTHB
     );
     event Swap(
-        address indexed sender,
+        address indexed recipient,
         uint256 amountTVERIn,
         uint256 amountTHBIn,
         uint256 amountTVEROut,
@@ -168,7 +168,7 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
 
             uint256 balTVERAdjusted = ((balanceTVER) * 10_000) - (amountTVERIn * totalFee);
             uint256 balTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * totalFee);
-            
+
             require(
                 balTVERAdjusted * balTHBAdjusted >= _reserveTVER * _reserveTHB * (10_000 ** 2),
                 "K invariant not maintained"
@@ -192,7 +192,7 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         _updateReserves(balanceTVER, balanceTHB);
 
         emit Swap(
-            msg.sender,
+            recipient,
             amountTVERIn,
             amountTHBIn,
             amountTVEROut,
