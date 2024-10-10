@@ -4,6 +4,7 @@ import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-solhint";
 import 'solidity-coverage';
 import 'hardhat-log-remover';
+import "hardhat-gas-reporter"
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -14,6 +15,9 @@ const config: HardhatUserConfig = {
         runs: 200
       }
     }
+  },
+  gasReporter: {
+    enabled: false
   }
 };
 

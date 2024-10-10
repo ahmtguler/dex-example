@@ -127,7 +127,7 @@ export const routerAbi = [
                 type: "uint256",
             },
         ],
-        name: "addTVERTHBLiquidity",
+        name: "addLiquidity",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",

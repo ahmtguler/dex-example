@@ -105,7 +105,7 @@ contract Router is ReentrancyGuard {
             TVER.safeTransferFrom(msg.sender, address(p), amountIn);
             p.swap(0, amountOut, recipient);
         } else { // THB -> TVER
-            uint256 amountOut = quote(amountIn, reserveTHB, reserveTVER);
+            uint256 amountOut = getAmountOut(amountIn, reserveTHB, reserveTVER);
             require(amountOut >= amountOutMin, "Router: insufficient output amount");
             THB.safeTransferFrom(msg.sender, address(p), amountIn);
             p.swap(amountOut, 0, recipient);

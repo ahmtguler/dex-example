@@ -168,9 +168,9 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
 
             uint256 balTVERAdjusted = ((balanceTVER) * 10_000) - (amountTVERIn * totalFee);
             uint256 balTHBAdjusted = (balanceTHB * 10_000) - (amountTHBIn * totalFee);
-
+            
             require(
-                balTVERAdjusted * balTHBAdjusted >= _reserveTVER * _reserveTHB * 10_000 ** 2,
+                balTVERAdjusted * balTHBAdjusted >= _reserveTVER * _reserveTHB * (10_000 ** 2),
                 "K invariant not maintained"
             );
 
