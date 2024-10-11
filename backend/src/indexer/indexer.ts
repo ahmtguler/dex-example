@@ -64,7 +64,7 @@ export async function index() {
 
         if (swapEvents.length > 0) {
             for (const event of swapEvents) {
-                const recipient = event.args.recipient;
+                const recipient = event.args[0];
                 const amountTVERIn = event.args.amountTVERIn;
                 const amountTHBIn = event.args.amountTHBIn;
                 const amountTVEROut = event.args.amountTVEROut;
@@ -141,13 +141,6 @@ export async function index() {
                 });
             }
         }
-
-        console.log(`Indexing from block ${fromBlock} to block ${toBlock}`);
-        console.log(`Swaps: ${swaps.length}`);
-        console.log(`Volumes: ${volumes.length}`);
-        console.log(`Mints: ${mints.length}`);
-        console.log(`Burns: ${burns.length}`);
-        console.log(`Syncs: ${syncs.length}`);
         
         if (swaps.length > 0) {
             for (const swap of swaps) {
