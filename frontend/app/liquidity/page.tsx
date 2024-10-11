@@ -147,7 +147,7 @@ export default function Liquidity() {
             }
         }
         fetchBalancesAndAllowances().catch(console.error)
-    }, [address, provider, fetchTrigger, address])
+    }, [address, provider, fetchTrigger])
 
     React.useEffect(() => {
         const fetchMints = async () => {

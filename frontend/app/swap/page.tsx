@@ -139,7 +139,7 @@ export default function Swap() {
             fetchReserves().catch(console.error)
         }, 3_000);
         return () => clearInterval(interval);
-    }, [])
+    }, [address])
 
     React.useEffect(() => {
         const fetchBalancesAndAllowances = async () => {
@@ -177,7 +177,7 @@ export default function Swap() {
             }
         }
         fetchBalancesAndAllowances().catch(console.error)
-    }, [address, provider, fetchTrigger, address])
+    }, [address, provider, fetchTrigger])
 
     const mint = async (token: string) => {
         if (!signer) {
