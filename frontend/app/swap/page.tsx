@@ -195,14 +195,14 @@ export default function Swap() {
                 address,
                 parseEther("10000")
             )
-            toast.promise(tx.wait(), {
-                loading: 'Minting...',
-                success: 'Minted 10,000 tokens successfully',
-                error: 'Failed to mint',
-            })
+            // toast.promise(tx.wait(), {
+            //     loading: 'Minting...',
+            //     success: 'Minted 10,000 tokens successfully',
+            //     error: 'Failed to mint',
+            // })
+            await tx.wait()
+            toast.success('Minted successfully')
             setFetchTrigger(fetchTrigger + 1)
-            // await tx.wait()
-            // toast.success('Minted successfully')
         } catch (e) {
             console.log(e)
             toast.error('Failed to mint')
@@ -230,11 +230,13 @@ export default function Swap() {
             if (parseUnits(allowanceTVER, 0) < parseEther(amountTVER)) {
                 const tver = TVER.connect(signer);
                 const tx = await tver.approve(ROUTER_ADDRESS, MaxUint256)
-                toast.promise(tx.wait(), {
-                    loading: 'Approving TVER...',
-                    success: 'Approved successfully',
-                    error: 'Failed to approve',
-                })
+                // toast.promise(tx.wait(), {
+                //     loading: 'Approving TVER...',
+                //     success: 'Approved successfully',
+                //     error: 'Failed to approve',
+                // })
+                await tx.wait()
+                toast.success('Approved successfully')
                 setFetchTrigger(fetchTrigger + 1)
             }
         } else {
@@ -249,11 +251,13 @@ export default function Swap() {
             if (parseUnits(allowanceTHB, 0) < parseEther(amountTHB)) {
                 const thb = THB.connect(signer);
                 const tx = await thb.approve(ROUTER_ADDRESS, MaxUint256)
-                toast.promise(tx.wait(), {
-                    loading: 'Approving THB...',
-                    success: 'Approved successfully',
-                    error: 'Failed to approve',
-                })
+                // toast.promise(tx.wait(), {
+                //     loading: 'Approving THB...',
+                //     success: 'Approved successfully',
+                //     error: 'Failed to approve',
+                // })
+                await tx.wait()
+                toast.success('Approved successfully')
                 setFetchTrigger(fetchTrigger + 1)
             }
         }
@@ -270,11 +274,13 @@ export default function Swap() {
                 address,
                 ((Date.now() / 1000) + (60 * 20)).toFixed(0)
             )
-            toast.promise(tx.wait(), {
-                loading: 'Swapping...',
-                success: 'Swapped successfully',
-                error: 'Failed to swap',
-            })
+            // toast.promise(tx.wait(), {
+            //     loading: 'Swapping...',
+            //     success: 'Swapped successfully',
+            //     error: 'Failed to swap',
+            // })
+            await tx.wait()
+            toast.success('Swapped successfully')
             setFetchTrigger(fetchTrigger + 1)
         } catch (e) {
             console.log(e)

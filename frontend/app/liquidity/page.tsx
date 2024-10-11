@@ -211,14 +211,14 @@ export default function Liquidity() {
                 address,
                 parseEther("10000")
             )
-            toast.promise(tx.wait(), {
-                loading: 'Minting...',
-                success: 'Minted 10,000 tokens successfully',
-                error: 'Failed to mint',
-            })
+            // toast.promise(tx.wait(), {
+            //     loading: 'Minting...',
+            //     success: 'Minted 10,000 tokens successfully',
+            //     error: 'Failed to mint',
+            // })
+            await tx.wait()
+            toast.success('Minted 10,000 tokens successfully')
             setFetchTrigger(fetchTrigger + 1)
-            // await tx.wait()
-            // toast.success('Minted successfully')
         } catch (e) {
             console.log(e)
             toast.error('Failed to mint')
@@ -257,13 +257,14 @@ export default function Liquidity() {
             try {
                 const tver = TVER.connect(signer);
                 const tx = await tver.approve(ROUTER_ADDRESS, MaxUint256)
-                toast.promise(tx.wait(), {
-                    loading: 'Approving TVER',
-                    success: 'TVER approved',
-                    error: 'Failed to approve TVER'
-                })
+                // toast.promise(tx.wait(), {
+                //     loading: 'Approving TVER',
+                //     success: 'TVER approved',
+                //     error: 'Failed to approve TVER'
+                // })
+                await tx.wait()
+                toast.success('TVER approved')
                 setFetchTrigger(fetchTrigger + 1)
-                // await tx.wait()
             } catch (e) {
                 console.log(e)
             }
@@ -273,13 +274,14 @@ export default function Liquidity() {
             try {
                 const thb = THB.connect(signer);
                 const tx = await thb.approve(ROUTER_ADDRESS, MaxUint256)
-                toast.promise(tx.wait(), {
-                    loading: 'Approving THB',
-                    success: 'THB approved',
-                    error: 'Failed to approve THB'
-                })
+                // toast.promise(tx.wait(), {
+                //     loading: 'Approving THB',
+                //     success: 'THB approved',
+                //     error: 'Failed to approve THB'
+                // })
+                await tx.wait()
+                toast.success('THB approved')
                 setFetchTrigger(fetchTrigger + 1)
-                // await tx.wait()
             } catch (e) {
                 console.log(e)
             }
@@ -295,13 +297,14 @@ export default function Liquidity() {
                 address,
                 ((Date.now() / 1000) + (60 * 20)).toFixed(0)
             )
-            toast.promise(tx.wait(), {
-                loading: 'Adding liquidity',
-                success: 'Liquidity added',
-                error: 'Failed to add liquidity'
-            })
+            // toast.promise(tx.wait(), {
+            //     loading: 'Adding liquidity',
+            //     success: 'Liquidity added',
+            //     error: 'Failed to add liquidity'
+            // })
+            await tx.wait()
+            toast.success('Liquidity added')
             setFetchTrigger(fetchTrigger + 1)
-            // await tx.wait()
         } catch (e) {
             console.log(e)
         }
@@ -334,13 +337,14 @@ export default function Liquidity() {
             try {
                 const pool = POOL.connect(signer);
                 const tx = await pool.approve(ROUTER_ADDRESS, MaxUint256)
-                toast.promise(tx.wait(), {
-                    loading: 'Approving LP',
-                    success: 'LP approved',
-                    error: 'Failed to approve LP'
-                })
+                // toast.promise(tx.wait(), {
+                //     loading: 'Approving LP',
+                //     success: 'LP approved',
+                //     error: 'Failed to approve LP'
+                // })
+                await tx.wait()
+                toast.success('LP approved')
                 setFetchTrigger(fetchTrigger + 1)
-                // await tx.wait()
             } catch (e) {
                 console.log(e)
             }
@@ -355,13 +359,14 @@ export default function Liquidity() {
                 address,
                 ((Date.now() / 1000) + (60 * 20)).toFixed(0)
             )
-            toast.promise(tx.wait(), {
-                loading: 'Removing liquidity',
-                success: 'Liquidity removed',
-                error: 'Failed to remove liquidity'
-            })
+            // toast.promise(tx.wait(), {
+            //     loading: 'Removing liquidity',
+            //     success: 'Liquidity removed',
+            //     error: 'Failed to remove liquidity'
+            // })
+            await tx.wait()
+            toast.success('Liquidity removed')
             setFetchTrigger(fetchTrigger + 1)
-            // await tx.wait()
         } catch (e) {
             console.log(e)
             toast.error('Failed to remove liquidity')
