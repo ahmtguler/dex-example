@@ -1,9 +1,6 @@
-import { GovernanceToken } from "./../typechain-types/contracts/governance/GovernanceToken";
-import { Contract, parseEther } from "ethers";
 import { ethers } from "hardhat";
 import hre from "hardhat";
-import { FeeManager, MintableToken, Pool, Router } from "../typechain-types";
-import { GovernorContract } from "../typechain-types/contracts/governance/Governor.sol";
+import { FeeManager, MintableToken, Pool, Router, GovernorContract, GovernanceToken } from "../typechain-types";
 
 async function main() {
     const mintableTokenFactory = await ethers.getContractFactory(
@@ -77,10 +74,49 @@ async function main() {
     await new Promise((r) => setTimeout(r, 30000));
     console.log("Done sleeping");
 
-    // await hre.run("verify:verify", {
-    //     address: ,
-    //     constructorArguments: [],
-    // });
+    await hre.run("verify:verify", {
+        address: TVER_ADDRESS,
+        constructorArguments: ["TVER", "TVER"],
+    });
+
+    await hre.run("verify:verify", {
+        address: THB_ADDRESS,
+        constructorArguments: ["THB", "THB"],
+    });
+
+    await hre.run("verify:verify", {
+        address: GovernanceTKN_ADDRESS,
+        constructorArguments: [],
+    });
+
+    await hre.run("verify:verify", {
+        address: Governer_ADDRESS,
+        constructorArguments: [await GovernanceTKN.getAddress()],
+    });
+
+    await hre.run("verify:verify", {
+        address: FeeManager_ADDRESS,
+        constructorArguments: [10n, 30n, await Governer.getAddress()],
+    });
+
+    await hre.run("verify:verify", {
+        address: Pool_ADDRESS,
+        constructorArguments: [
+            await FeeManager.getAddress(),
+            await TVER.getAddress(),
+            await THB.getAddress(),
+        ],
+    });
+
+    await hre.run("verify:verify", {
+        address: Router_ADDRESS,
+        constructorArguments: [
+            await Pool.getAddress(),
+            await FeeManager.getAddress(),
+            await TVER.getAddress(),
+            await THB.getAddress(),
+        ],
+    });
 }
 
 main()

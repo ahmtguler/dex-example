@@ -5,6 +5,8 @@ import "@nomiclabs/hardhat-solhint";
 import 'solidity-coverage';
 import 'hardhat-log-remover';
 import "hardhat-gas-reporter"
+import dotenv from "dotenv";
+dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -18,6 +20,17 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: false
+  },
+  networks: {
+    sepolia: {
+      url: process.env.RPC_URL,
+      accounts: [process.env.PRIVATE_KEY as string]
+    }
+  },
+  etherscan: {
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY as string
+    }
   }
 };
 
