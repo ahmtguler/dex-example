@@ -223,7 +223,6 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
             TVER.balanceOf(address(this)),
             THB.balanceOf(address(this))
         );
-        emit Sync(reserveTVER, reserveTHB);
     }
 
     function getReserves() external view returns (uint256, uint256) {
@@ -233,5 +232,6 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
     function _updateReserves(uint256 balanceTVER, uint256 balanceTHB) internal {
         reserveTVER = uint128(balanceTVER);
         reserveTHB = uint128(balanceTHB);
+        emit Sync(reserveTVER, reserveTHB);
     }
 }
