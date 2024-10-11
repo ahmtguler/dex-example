@@ -169,10 +169,10 @@ export default function Liquidity() {
             fetchBurns().catch(console.error)
         }, 3_000);
         return () => clearInterval(interval);
-    }, [])
+    }, [address])
 
     React.useEffect(() => {
-        let unified: Unified[] = []
+        const unified: Unified[] = []
         mintData.forEach((mint) => {
             unified.push({
                 recipient: mint.recipient,
