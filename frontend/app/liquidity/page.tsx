@@ -28,7 +28,19 @@ import { POOL } from "@/contracts/pool";
 import { useEthersSigner, useEthersProvider } from "@/utils/ethers";
 import { toast } from "sonner";
 import { parseEther, parseUnits, MaxUint256 } from "ethers";
-
+import { History } from "lucide-react";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { baseUrl } from "@/utils/baseUrl";
+import { readableAmount } from "@/utils/readableAmount";
 
 export default function Liquidity() {
     const { isConnected, address } = useAccount()
@@ -48,6 +60,32 @@ export default function Liquidity() {
     const [removeAmount, setRemoveAmount] = React.useState(0n)
     const [removeAmountDisplay, setRemoveAmountDisplay] = React.useState('')
     const [removePercent, setRemovePercent] = React.useState(0)
+
+    interface Mint {
+        recipient: string;
+        amountTVER: string;
+        amountTHB: string;
+        timestamp: number;
+    }
+
+    interface Burn {
+        recipient: string;
+        amountTVER: string;
+        amountTHB: string;
+        timestamp: number;
+    }
+
+    interface Unified {
+        recipient: string;
+        amountTVER: string;
+        amountTHB: string;
+        timestamp: number;
+        type: string;
+    }
+
+    const [mintData, setMintData] = React.useState<Mint[]>([])
+    const [burnData, setBurnData] = React.useState<Burn[]>([])
+    const [unifiedData, setUnifiedData] = React.useState<Unified[]>([])
 
     React.useEffect(() => {
         if (balanceLP === '' || balanceLP === '0') {
@@ -112,6 +150,82 @@ export default function Liquidity() {
         }
         fetchBalancesAndAllowances().catch(console.error)
     }, [address, provider, fetchTrigger])
+
+    React.useEffect(() => {
+        const fetchMints = async () => {
+            if (!address) return
+            const res = await fetch(baseUrl + '/mint/' + address)
+            const data = await res.json()
+            setMintData(data)
+        }
+
+        const fetchBurns = async () => {
+            if (!address) return
+            const res = await fetch(baseUrl + '/burn/' + address)
+            const data = await res.json()
+            setBurnData(data)
+        }
+
+        const interval = setInterval(() => {
+            fetchMints().catch(console.error)
+            fetchBurns().catch(console.error)
+        }, 3_000);
+        return () => clearInterval(interval);
+    }, [])
+
+    React.useEffect(() => {
+        let unified: Unified[] = []
+        mintData.forEach((mint) => {
+            unified.push({
+                recipient: mint.recipient,
+                amountTVER: mint.amountTVER,
+                amountTHB: mint.amountTHB,
+                timestamp: mint.timestamp,
+                type: 'mint'
+            })
+        })
+        burnData.forEach((burn) => {
+            unified.push({
+                recipient: burn.recipient,
+                amountTVER: burn.amountTVER,
+                amountTHB: burn.amountTHB,
+                timestamp: burn.timestamp,
+                type: 'burn'
+            })
+        })
+        unified.sort((a, b) => b.timestamp - a.timestamp)
+        setUnifiedData(unified)
+    } , [mintData, burnData])
+
+    const mint = async (token: string) => {
+        if (!signer) {
+            toast.error('Please connect wallet')
+            return
+        }
+        if (!address) {
+            toast.error('Please connect wallet')
+            return
+        }
+        const TokenContract = token === 'TVER' ? TVER : THB
+        try {
+            const ctr = TokenContract.connect(signer);
+            const tx = await ctr.mint(
+                address,
+                parseEther("10000")
+            )
+            toast.promise(tx.wait(), {
+                loading: 'Minting...',
+                success: 'Minted 10,000 tokens successfully',
+                error: 'Failed to mint',
+            })
+            setFetchTrigger(fetchTrigger + 1)
+            // await tx.wait()
+            // toast.success('Minted successfully')
+        } catch (e) {
+            console.log(e)
+            toast.error('Failed to mint')
+        }
+    }
 
     const addLiquidity = async () => {
         if (!signer) {
@@ -271,9 +385,17 @@ export default function Liquidity() {
                                 Add liquidity to the pool and earn fees
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-2">
-                            <div className="space-y-1">
+                        <CardContent className="space-y-4">
+                            <div className="space-y-4">
+                            <div className="flex justify-between">
                                 <Label htmlFor="amountTVER">Amount TVER</Label>
+                                <Button
+                                        variant='ghost'
+                                        size='sm'
+                                        className="-mt-3"
+                                        onClick={() => mint('TVER')}
+                                    >Mint</Button>
+                            </div>
                                 <Input
                                     id="amountTVER"
                                     placeholder="Enter amount"
@@ -281,8 +403,16 @@ export default function Liquidity() {
                                     onChange={(e) => setAddTVER(e.target.value)}
                                 />
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-4">
+                            <div className="flex justify-between">
                                 <Label htmlFor="amountTHB">Amount THB</Label>
+                                <Button
+                                        variant='ghost'
+                                        size='sm'
+                                        className="-mt-3"
+                                        onClick={() => mint('TVER')}
+                                    >Mint</Button>
+                            </div>
                                 <Input
                                     id="amountTHB"
                                     placeholder="Enter amount"
@@ -293,9 +423,46 @@ export default function Liquidity() {
                         </CardContent>
                         <CardFooter className="flex justify-center">
                             {(isConnected) ? (
+                                <div className="flex flex-row items-center justify-center space-x-4">
+
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button variant="outline">
+                                            <History className="icon" />
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent>
+                                        <SheetHeader>
+                                            <SheetTitle>User Liquidity History</SheetTitle>
+                                            <SheetDescription>
+                                                A list of your liquidity transactions
+                                            </SheetDescription>
+                                        </SheetHeader>
+                                        <div className="grid gap-4 py-4">
+                                            {unifiedData.map((data, index) => (
+                                                <div key={index} className="flex flex-row items-center justify-between space-x-4">
+                                                    <div>
+                                                        {data.type === 'mint' ? (
+                                                            <span className="text-green-500">Add LP</span>
+                                                        ) : (
+                                                            <span className="text-red-500">Remove LP</span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        {readableAmount(data.amountTVER,2)} TVER
+                                                    </div>
+                                                    <div>
+                                                        {readableAmount(data.amountTHB,2)} THB
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
                                 <Button
                                     onClick={addLiquidity}
                                 >Add Liquidity</Button>
+                                </div>
                             ) : (
                                 <Connect />
                             )}

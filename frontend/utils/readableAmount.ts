@@ -5,6 +5,9 @@ export function readableAmount(
     maxDecimals: number = 18,
     rounding: "floor" | "ceil" | "round" = "round"
 ) { 
+    if (typeof wei !== "bigint" && typeof wei !== "string") {
+        return "0";
+    }
     if (typeof wei === "string") {
         wei = BigInt(wei);
     }   

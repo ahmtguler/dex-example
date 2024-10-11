@@ -36,7 +36,6 @@ interface PriceChartProps {
   volumes: Volume[];
 
 }
-
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -53,7 +52,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ prices, volumes }) => {
   console.log('volumes', volumes)
 
   const chartData = prices.map((price) => ({
-    time: (' ' + Math.floor(((Number(price.timestamp) + sevenHours) % day) / 3600) + ':' + Math.floor((Number(price.timestamp)) % 3600 / 60) + ' '),
+    time: (' ' + Math.floor(((Number(price.timestamp) + sevenHours) % day) / 3600) + ':' + (Math.floor((Number(price.timestamp)) % 3600 / 60) < 10 ? '0' + Math.floor((Number(price.timestamp)) % 3600 / 60) : Math.floor((Number(price.timestamp)) % 3600 / 60)) + ' '),
     THB: (Number(price.price) / 1e4).toFixed(2),
   }))
 

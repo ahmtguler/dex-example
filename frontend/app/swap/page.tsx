@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowDown, ArrowUpDown } from "lucide-react"
+import { ArrowDown, ArrowUpDown, ArrowRight, History } from "lucide-react"
 import Connect from "@/components/connect"
 import { useAccount } from 'wagmi'
 import { ROUTER, ROUTER_ADDRESS } from "@/contracts/router"
@@ -32,18 +32,18 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import {readableAmount} from "@/utils/readableAmount";
-import {Price, Volume } from "@/components/price-chart";
-
-// function FetchSwaps() {
-//     // const fetcher = (...args) => fetch(...args).then(res => res.json())
-//     const { data, error, isLoading } = useSWR('http://localhost:8080/api/swap', fetch)
-//     return {
-//         swaps: data,
-//         swapsIsLoading: isLoading,
-//         swapsIsError: error
-//     }
-// }
+import { readableAmount } from "@/utils/readableAmount";
+import { Price, Volume } from "@/components/price-chart";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
 
 export default function Swap() {
     const { isConnected, address } = useAccount()
@@ -76,9 +76,36 @@ export default function Swap() {
     }
 
     const [swapData, setSwapData] = React.useState<SwapData[]>([])
+    const [userSwapData, setUserSwapData] = React.useState<SwapData[]>([])
     const [prices, setPrices] = React.useState<Price[]>([])
     const [volumes, setVolumes] = React.useState<Volume[]>([])
     const [reserves, setReserves] = React.useState<Reserves>()
+
+    function getAmountOut(amountIn: string, reserveIn: string, reserveOut: string) {
+        const amountInWithFee = BigInt(amountIn) * BigInt(9900)
+        const numerator = amountInWithFee * BigInt(reserveOut)
+        const denominator = (BigInt(reserveIn) * 10000n) + amountInWithFee
+        return numerator / denominator
+    }
+
+    React.useEffect(() => {
+        if (!reserves) return
+        if (direction === 'tver-to-thb') {
+            if (amountTVER === '') {
+                setAmountTHB('')
+                return
+            }
+            const amountOut = getAmountOut(amountTVER, reserves.reserveTVER, reserves.reserveTHB)
+            setAmountTHB(amountOut.toString())
+        } else {
+            if (amountTHB === '') {
+                setAmountTVER('')
+                return
+            }
+            const amountOut = getAmountOut(amountTHB, reserves.reserveTHB, reserves.reserveTVER)
+            setAmountTVER(amountOut.toString())
+        }
+    }, [amountTVER, amountTHB, reserves, direction])
 
 
     React.useEffect(() => {
@@ -86,6 +113,10 @@ export default function Swap() {
             const res = await fetch(baseUrl + '/swap')
             const data = await res.json()
             setSwapData(data)
+            if (address) {
+                const userSwaps = data.filter((swap: SwapData) => swap.recipient === address)
+                setUserSwapData(userSwaps)
+            }
         }
         const fetchPrices = async () => {
             const res = await fetch(baseUrl + `/price/hours/2`)
@@ -112,55 +143,11 @@ export default function Swap() {
         return () => clearInterval(interval);
     }, [])
 
-    // React.useEffect(() => {
-    //     const fetchPrices = async () => {
-    //         const res = await fetch(baseUrl + '/price')
-    //         const data = await res.json()
-    //         setPrices(data)
-    //     }
-    //     const interval = setInterval(() => {
-    //         fetchPrices().catch(console.error)
-    //     }, 10_000);
-    //     return () => clearInterval(interval);
-    // }, [])
-
-    // React.useEffect(() => {
-    //     const fetchVolumes = async () => {
-    //         const res = await fetch(baseUrl + '/volume')
-    //         const data = await res.json()
-    //         setVolumes(data)
-    //     }
-    //     const interval = setInterval(() => {
-    //         fetchVolumes().catch(console.error)
-    //     }, 10_000);
-    //     return () => clearInterval(interval);
-    // }, [])
-
-    // React.useEffect(() => {
-    //     const fetchReserves = async () => {
-    //         const res = await fetch(baseUrl + '/sync/reserves')
-    //         const data = await res.json()
-    //         setReserves(data)
-    //     }
-    //     const interval = setInterval(() => {
-    //         fetchReserves().catch(console.error)
-    //     }, 10_000);
-    //     return () => clearInterval(interval);
-    // }, [])
 
     console.log('prices', prices)
     console.log('volumes', volumes)
-    console.log('reserves', reserves)
-
+    console.log('reserves', readableAmount(reserves?.reserveTVER!, 4), readableAmount(reserves?.reserveTHB!, 4))
     console.log('swapData', swapData)
-
-
-    // const [swaps, setSwaps] = React.useState([])
-    // const [volumes, setVolumes] = React.useState([])
-    // const [mints, setMints] = React.useState([])
-    // const [burns, setBurns] = React.useState([])
-    // const [reserves, setReserves] = React.useState([])
-    // const [prices, setPrices] = React.useState([])
 
     React.useEffect(() => {
         const fetchBalancesAndAllowances = async () => {
@@ -218,7 +205,7 @@ export default function Swap() {
             )
             toast.promise(tx.wait(), {
                 loading: 'Minting...',
-                success: 'Minted successfully',
+                success: 'Minted 10,000 tokens successfully',
                 error: 'Failed to mint',
             })
             setFetchTrigger(fetchTrigger + 1)
@@ -353,6 +340,7 @@ export default function Swap() {
                                     type="number"
                                     value={amountTHB}
                                     placeholder="Enter amount"
+                                    disabled={true}
                                     onChange={(e) => setAmountTHB(e.target.value)}
                                 />
                             </div>
@@ -395,6 +383,7 @@ export default function Swap() {
                                     type="number"
                                     value={amountTVER}
                                     placeholder="Enter amount"
+                                    disabled={true}
                                     onChange={(e) => setAmountTVER(e.target.value)}
                                 />
                             </div>
@@ -402,11 +391,44 @@ export default function Swap() {
                     </CardContent>
                     <CardFooter className="flex justify-center">
                         {(isConnected) ? (
+                            <div className="flex flex-row items-center justify-center space-x-4">
 
-                            <Button
-                                className="w-full"
-                                onClick={swap}
-                            >Swap</Button>
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button variant="outline">
+                                            <History className="icon" />
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent>
+                                        <SheetHeader>
+                                            <SheetTitle>User Swap History</SheetTitle>
+                                            <SheetDescription>
+                                                A list of your recent swaps.
+                                            </SheetDescription>
+                                        </SheetHeader>
+                                        <div className="grid gap-4 py-4">
+                                            {userSwapData && (userSwapData.map((swap) => (
+                                                <div key={swap.timestamp} className="flex flex-row items-center justify-between">
+                                                    <div className="flex flex-row items-center space-x-2">
+                                                        <div className="font-medium">{swap.tokenIn}</div>
+                                                        <ArrowRight className="icon" />
+                                                        <div className="font-medium">{swap.tokenOut}</div>
+                                                    </div>
+                                                    <div className="font-medium">{readableAmount(swap.amountIn, 4)}</div>
+                                                    <div className="font-medium">{readableAmount(swap.amountOut, 4)}</div>
+                                                    {/* <div className="font-medium">{new Date(Number(swap.timestamp) * 1000).toLocaleString()}</div> */}
+                                                </div>
+                                            )))}
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
+                                <Button
+                                    className="w-full"
+                                    onClick={swap}>
+                                    Swap
+                                </Button>
+                            </div>
+
                         ) : (
                             <Connect />
                         )}
@@ -417,37 +439,29 @@ export default function Swap() {
                 </div>
             </div>
             <div className="flex flex-row items-center justify-center mt-4 mb-6">
-            <Table className="w-[678px]">
-                <TableCaption>A list of recent swaps.</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[100px]">Recipient</TableHead>
-                        <TableHead>From</TableHead>
-                        <TableHead>To</TableHead>
-                        <TableHead>Sold</TableHead>
-                        <TableHead>Bought</TableHead>
-                        {/* <TableHead className="text-right">Amount</TableHead> */}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {swapData && (swapData.map((swap) => (
-                        <TableRow key={swap.timestamp}>
-                            <TableCell className="font-medium">{swap.recipient}</TableCell>
-                            <TableCell>{swap.tokenIn}</TableCell>
-                            <TableCell>{swap.tokenOut}</TableCell>
-                            <TableCell>{readableAmount(swap.amountIn, 4)}</TableCell>
-                            <TableCell>{readableAmount(swap.amountOut, 4)}</TableCell>
-                            {/* <TableCell className="text-right">{invoice.totalAmount}</TableCell> */}
+                <Table className="w-[678px]">
+                    <TableCaption>A list of recent swaps.</TableCaption>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[100px]">Recipient</TableHead>
+                            <TableHead>From</TableHead>
+                            <TableHead>To</TableHead>
+                            <TableHead>Sold</TableHead>
+                            <TableHead>Bought</TableHead>
                         </TableRow>
-                    )))}
-                </TableBody>
-                {/* <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={3}>Total</TableCell>
-                        <TableCell className="text-right">$2,500.00</TableCell>
-                    </TableRow>
-                </TableFooter> */}
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {swapData && (swapData.map((swap) => (
+                            <TableRow key={swap.timestamp}>
+                                <TableCell className="font-medium">{swap.recipient}</TableCell>
+                                <TableCell>{swap.tokenIn}</TableCell>
+                                <TableCell>{swap.tokenOut}</TableCell>
+                                <TableCell>{readableAmount(swap.amountIn, 4)}</TableCell>
+                                <TableCell>{readableAmount(swap.amountOut, 4)}</TableCell>
+                            </TableRow>
+                        )))}
+                    </TableBody>
+                </Table>
             </div>
         </div>
     );
