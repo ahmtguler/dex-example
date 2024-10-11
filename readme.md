@@ -67,7 +67,7 @@ The project is divided into three key components:
 ## Deployment
 
 -   **Smart Contracts:** Deployed on Sepolia Testnet. Deployed contract addresses are linked in the [here](#contract-deployments).
--   **Frontend:** Hosted on Vercel. Example link: [Frontend Demo](dex-example-eight.vercel.app)
+-   **Frontend:** Hosted on Vercel. Example link: [Frontend Demo](https://dex-example-eight.vercel.app/)
 -   **Backend API:** Running on Render.
 
 ## Getting Started
