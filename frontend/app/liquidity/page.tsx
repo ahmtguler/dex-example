@@ -27,7 +27,7 @@ import { TVER, THB } from "@/contracts/mintable-token"
 import { POOL } from "@/contracts/pool";
 import { useEthersSigner, useEthersProvider } from "@/utils/ethers";
 import { toast } from "sonner";
-import { parseEther, parseUnits, Contract, MaxUint256 } from "ethers";
+import { parseEther, parseUnits, MaxUint256 } from "ethers";
 
 
 export default function Liquidity() {
@@ -45,34 +45,28 @@ export default function Liquidity() {
 
     const [addTVER, setAddTVER] = React.useState('')
     const [addTHB, setAddTHB] = React.useState('')
-    const [removeAmount, setRemoveAmount] = React.useState('')
+    const [removeAmount, setRemoveAmount] = React.useState(0n)
+    const [removeAmountDisplay, setRemoveAmountDisplay] = React.useState('')
     const [removePercent, setRemovePercent] = React.useState(0)
 
     React.useEffect(() => {
         if (balanceLP === '' || balanceLP === '0') {
-            setRemoveAmount('')
+            setRemoveAmount(0n)
             return
         }
-        const balanceAdjusted = parseUnits(balanceLP, 0) / parseEther("1")
-        setRemoveAmount((Number(balanceAdjusted) * removePercent / 100).toString())
+        const balanceAdjusted = parseUnits(balanceLP, 0) / parseUnits('1', 16)
+        setRemoveAmountDisplay((Number(balanceAdjusted) * removePercent / 10000).toFixed(4))
+        setRemoveAmount(parseUnits(balanceLP, 0) * BigInt(removePercent) / 100n)
     }, [removePercent, balanceLP])
 
-    React.useEffect(() => {
-        if (balanceLP === '' || balanceLP === '0' || removeAmount === '') {
-            setRemovePercent(0)
-            return
-        }
-        const percent = 100n * (parseUnits(removeAmount, 0) / parseUnits(balanceLP, 0))
-        setRemovePercent(Number(percent))
-    } , [removeAmount, balanceLP])
 
     React.useEffect(() => {
         const fetchBalancesAndAllowances = async () => {
             if (!address) return
             if (!provider) return
-            const tver = TVER.connect(provider) as Contract
-            const thb = THB.connect(provider) as Contract
-            const pool = POOL.connect(provider) as Contract
+            const tver = TVER.connect(provider);
+            const thb = THB.connect(provider);
+            const pool = POOL.connect(provider);
 
             try {
                 const balanceTVER = await tver.balanceOf(address)
@@ -117,7 +111,7 @@ export default function Liquidity() {
             }
         }
         fetchBalancesAndAllowances().catch(console.error)
-    }, [address, provider])
+    }, [address, provider, fetchTrigger])
 
     const addLiquidity = async () => {
         if (!signer) {
@@ -149,7 +143,7 @@ export default function Liquidity() {
 
         if (allowanceTVER < addTVER) {
             try {
-                const tver = TVER.connect(signer) as Contract
+                const tver = TVER.connect(signer);
                 const tx = await tver.approve(ROUTER_ADDRESS, MaxUint256)
                 toast.promise(tx.wait(), {
                     loading: 'Approving TVER',
@@ -165,7 +159,7 @@ export default function Liquidity() {
 
         if (allowanceTHB < addTHB) {
             try {
-                const thb = THB.connect(signer) as Contract
+                const thb = THB.connect(signer);
                 const tx = await thb.approve(ROUTER_ADDRESS, MaxUint256)
                 toast.promise(tx.wait(), {
                     loading: 'Approving THB',
@@ -180,8 +174,8 @@ export default function Liquidity() {
         }
 
         try {
-            const router = ROUTER.connect(signer) as Contract
-            const tx = await router.addTVERTHBLiquidity(
+            const router = ROUTER.connect(signer);
+            const tx = await router.addLiquidity(
                 ADD_TVER,
                 ADD_THB,
                 0n,
@@ -214,19 +208,19 @@ export default function Liquidity() {
             toast.error('Please enter amount')
             return
         }
-        const REMOVE_AMOUNT = parseEther(removeAmount)
+
         if (balanceLP === '' || balanceLP === '0') {
             toast.error('No LP balance')
             return
         }
-        if (REMOVE_AMOUNT > parseUnits(balanceLP, 0)) {
+        if (removeAmount > parseUnits(balanceLP, 0)) {
             toast.error('Insufficient LP balance')
             return
         }
 
-        if (allowanceLP < removeAmount) {
+        if (parseUnits(allowanceLP, 0) < removeAmount) {
             try {
-                const pool = POOL.connect(signer) as Contract
+                const pool = POOL.connect(signer);
                 const tx = await pool.approve(ROUTER_ADDRESS, MaxUint256)
                 toast.promise(tx.wait(), {
                     loading: 'Approving LP',
@@ -241,9 +235,9 @@ export default function Liquidity() {
         }
 
         try {
-            const router = ROUTER.connect(signer) as Contract
+            const router = ROUTER.connect(signer);
             const tx = await router.removeLiquidity(
-                REMOVE_AMOUNT,
+                removeAmount,
                 0n,
                 0n,
                 address,
@@ -329,8 +323,9 @@ export default function Liquidity() {
                                 <Input
                                     id="lpAmount"
                                     placeholder="Enter amount"
-                                    value={removeAmount}
-                                    onChange={(e) => setRemoveAmount(e.target.value)}
+                                    value={removeAmountDisplay}
+                                    disabled={true}
+                                    onChange={(e) => setRemoveAmountDisplay(e.target.value)}
                                 />
                             </div>
 

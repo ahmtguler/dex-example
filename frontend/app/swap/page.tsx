@@ -20,7 +20,7 @@ import { ROUTER, ROUTER_ADDRESS } from "@/contracts/router"
 import { TVER, THB } from "@/contracts/mintable-token"
 import { useEthersSigner, useEthersProvider } from "@/utils/ethers";
 import { toast } from "sonner";
-import { parseEther, parseUnits, Contract, MaxUint256 } from "ethers";
+import { parseEther, parseUnits, MaxUint256 } from "ethers";
 
 export default function Swap() {
     const { isConnected, address } = useAccount()
@@ -41,8 +41,8 @@ export default function Swap() {
         const fetchBalancesAndAllowances = async () => {
             if (!address) return
             if (!provider) return
-            const tver = TVER.connect(provider) as Contract
-            const thb = THB.connect(provider) as Contract
+            const tver = TVER.connect(provider);
+            const thb = THB.connect(provider);
 
             try {
                 const balanceTVER = await tver.balanceOf(address)
@@ -73,7 +73,7 @@ export default function Swap() {
             }
         }
         fetchBalancesAndAllowances().catch(console.error)
-    }, [address, provider])
+    }, [address, provider, fetchTrigger])
 
     const mint = async (token: string) => {
         if (!signer) {
@@ -86,7 +86,7 @@ export default function Swap() {
         }
         const TokenContract = token === 'TVER' ? TVER : THB
         try {
-            const ctr = TokenContract.connect(signer) as Contract
+            const ctr = TokenContract.connect(signer);
             const tx = await ctr.mint(
                 address,
                 parseEther("10000")
@@ -124,7 +124,7 @@ export default function Swap() {
                 return
             }
             if (parseUnits(allowanceTVER, 0) < parseEther(amountTVER)) {
-                const tver = TVER.connect(signer) as Contract
+                const tver = TVER.connect(signer);
                 const tx = await tver.approve(ROUTER_ADDRESS, MaxUint256)
                 toast.promise(tx.wait(), {
                     loading: 'Approving TVER...',
@@ -143,7 +143,7 @@ export default function Swap() {
                 return
             }
             if (parseUnits(allowanceTHB, 0) < parseEther(amountTHB)) {
-                const thb = THB.connect(signer) as Contract
+                const thb = THB.connect(signer);
                 const tx = await thb.approve(ROUTER_ADDRESS, MaxUint256)
                 toast.promise(tx.wait(), {
                     loading: 'Approving THB...',
@@ -158,7 +158,7 @@ export default function Swap() {
         const amountIn = _direction === 0 ? parseEther(amountTVER) : parseEther(amountTHB)
 
         try {
-            const router = ROUTER.connect(signer) as Contract
+            const router = ROUTER.connect(signer);
             const tx = await router.swapExactTokens(
                 amountIn,
                 0n,
