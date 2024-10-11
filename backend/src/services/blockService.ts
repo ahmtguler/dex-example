@@ -30,3 +30,11 @@ export const getLastBlock = async () => {
         return null;
     }
 }
+
+export const dropBlocks = async () => {
+    try {
+        await Block.deleteMany({});
+    } catch (error: any) {
+        console.error(`Error: ${error.message}`);
+    }
+}

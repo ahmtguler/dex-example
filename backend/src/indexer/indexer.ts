@@ -1,7 +1,7 @@
 import { JsonRpcProvider } from "ethers";
 import { Pool__factory } from "./types/Pool__factory";
 import dotenv from "dotenv";
-import {addBlock, getLastBlock} from "../services/blockService";
+import {addBlock, getLastBlock, dropBlocks} from "../services/blockService";
 import {addSwap} from "../services/swapService";
 import {addVolume} from "../services/volumeService";
 import { addMint } from "../services/mintService";
@@ -10,6 +10,10 @@ import { addReserves } from "../services/syncService";
 
 
 dotenv.config();
+
+export async function drop() {
+    await dropBlocks();
+}
 
 export async function init() {
     const provider = new JsonRpcProvider(process.env.RPC_URL);
@@ -137,6 +141,13 @@ export async function index() {
                 });
             }
         }
+
+        console.log(`Indexing from block ${fromBlock} to block ${toBlock}`);
+        console.log(`Swaps: ${swaps.length}`);
+        console.log(`Volumes: ${volumes.length}`);
+        console.log(`Mints: ${mints.length}`);
+        console.log(`Burns: ${burns.length}`);
+        console.log(`Syncs: ${syncs.length}`);
         
         if (swaps.length > 0) {
             for (const swap of swaps) {
