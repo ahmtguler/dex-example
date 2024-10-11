@@ -53,6 +53,13 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         THB = _THB;
     }
 
+    /// @notice Mints liquidity tokens
+    /// @param recipient address to receive the liquidity tokens
+    /// @return liquidity amount of liquidity tokens minted
+    /// @dev This is a low level function that should be called from the router contract
+    /// tokens are optimistically transferred to the pool then in the same transaction
+    /// pool is called to mint liquidity tokens. Pool accepts all the excess tokens
+    /// to be send by the caller.
     function mint(
         address recipient
     ) external nonReentrant returns (uint256 liquidity) {
@@ -88,6 +95,15 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         emit Mint(recipient, amountTVER, amountTHB);
     }
 
+
+    /// @notice Burns liquidity tokens and returns the underlying tokens
+    /// @param recipient address to receive the underlying tokens
+    /// @return amountTVER amount of TVER tokens returned
+    /// @return amountTHB amount of THB tokens returned
+    /// @dev This is a low level function that should be called from the router contract
+    /// liquidity tokens optimistically transferred to the pool then in the same transaction
+    /// pool is called to burn amount of liquidity tokens it holds and send the underlying
+    /// tokens to the recipient.
     function burn(
         address recipient
     ) external nonReentrant returns (uint256 amountTVER, uint256 amountTHB) {
@@ -119,6 +135,15 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         emit Burn(recipient, amountTVER, amountTHB);
     }
 
+    /// @notice Swaps tokens
+    /// @param amountTVEROut amount of TVER tokens to send
+    /// @param amountTHBOut amount of THB tokens to send
+    /// @param recipient address to receive the swapped tokens
+    /// @dev This is a low level function that should be called from the router contract
+    /// This function is used to swap tokens between TVER and THB. Again, the tokens are
+    /// optimistically transferred to the pool then in the same transaction pool is called.
+    /// Pool sends the requested amount of tokens to the recipient then checks if the remaining
+    /// reserves are enough to maintain the K invariant, proving that it was a valid swap request.
     function swap(
         uint256 amountTVEROut,
         uint256 amountTHBOut,
@@ -174,6 +199,7 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
                 "K invariant not maintained"
             );
 
+            // Sending fee tokens on each swap is not gas efficient and only implemented this for clarity in the scope of the task
             if (platformFee > 0) {
                 uint256 tverFee = (amountTVERIn * platformFee) / 10_000;
                 if (tverFee > 0) {
@@ -200,6 +226,10 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         );
     }
 
+    /// @notice Skims the excess tokens from the pool
+    /// @param recipient address to receive the excess tokens
+    /// @dev This function is used to skim the excess tokens from the pool. This function
+    /// can be called by everyone and the excess tokens are sent to the recipient.
     function skim(address recipient) external nonReentrant {
         IERC20 _TVER = TVER; // Gas saving, prevents repeated use of SLOAD
         IERC20 _THB = THB; // Gas saving, prevents repeated use of SLOAD
@@ -218,17 +248,26 @@ contract Pool is ReentrancyGuard, ERC20, IPool {
         emit Skim(recipient, amountTVER, amountTHB);
     }
 
+    /// @notice Syncs the reserves
+    /// @dev This function is used to sync the reserves of the pool with the actual
+    /// token balances. This function can be called by everyone.
     function sync() external nonReentrant {
         _updateReserves(
             TVER.balanceOf(address(this)),
             THB.balanceOf(address(this))
         );
     }
-
+ 
+    /// @notice Returns the reserves
+    /// @return reserveTVER amount of TVER tokens in the pool
+    /// @return reserveTHB amount of THB tokens in the pool
     function getReserves() external view returns (uint256, uint256) {
         return (reserveTVER, reserveTHB);
     }
 
+    /// @notice Internal function that is used for updating the reserves
+    /// @param balanceTVER updated balance of TVER tokens
+    /// @param balanceTHB updated balance of THB tokens
     function _updateReserves(uint256 balanceTVER, uint256 balanceTHB) internal {
         reserveTVER = uint128(balanceTVER);
         reserveTHB = uint128(balanceTHB);

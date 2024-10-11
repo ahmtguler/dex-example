@@ -36,6 +36,17 @@ contract Router is ReentrancyGuard {
         _;
     }
 
+
+    /// @notice Add liquidity to the pool
+    /// @param amountTVERDesired The amount of TVER tokens to add
+    /// @param amountTHBDesired The amount of THB tokens to add
+    /// @param amountTVERMin The minimum amount of TVER tokens to add
+    /// @param amountTHBMin The minimum amount of THB tokens to add
+    /// @param recipient The address to receive the LP tokens
+    /// @param deadline The deadline to add liquidity
+    /// @dev Caller sends amount of tokens they want to allocate to the pool
+    /// router contract makes the calculations and use the optimal combination of 
+    /// tokens to add to the pool
     function addLiquidity(
         uint256 amountTVERDesired,
         uint256 amountTHBDesired,
@@ -72,6 +83,14 @@ contract Router is ReentrancyGuard {
         p.mint(recipient);
     }
     
+    /// @notice Remove liquidity from the pool
+    /// @param liquidityAmount The amount of LP tokens to remove
+    /// @param amountTVERMin The minimum amount of TVER tokens to receive
+    /// @param amountTHBMin The minimum amount of THB tokens to receive
+    /// @param recipient The address to receive the tokens
+    /// @param deadline The deadline to remove liquidity
+    /// @dev Caller sends the amount of LP tokens to the pool and calls burn function
+    /// to remove the liquidity and get underlying tokens in return
     function removeLiquidity(
         uint256 liquidityAmount,
         uint256 amountTVERMin,
@@ -87,6 +106,13 @@ contract Router is ReentrancyGuard {
         require(amountTHB >= amountTHBMin, "Router: insufficient THB amount");
     }
 
+    /// @notice Swap Exact Tokens
+    /// @param amountIn The amount of tokens to swap
+    /// @param amountOutMin The minimum amount of tokens to receive
+    /// @param direction The direction of the swap (0 for TVER -> THB, 1 for THB -> TVER)
+    /// @param recipient The address to receive the tokens
+    /// @param deadline The deadline to swap tokens
+    /// @dev Similar to most used swap function on UniSwapV2 router slightly modified
     function swapExactTokens(
         uint256 amountIn,
         uint256 amountOutMin,

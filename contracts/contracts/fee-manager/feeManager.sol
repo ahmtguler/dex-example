@@ -26,16 +26,28 @@ contract FeeManager is IFeeManager, Ownable {
         return (_liquditiyProviderFee, _platformFee, _liquditiyProviderFee + _platformFee);
     }
 
+    ///@notice Can only be called by Governor contract to set the fees. It has another
+    /// security mechanism to prevents fees from being too high in case of a malicious
+    /// governor contract actions.
+    ///@param liquditiyProviderFee The fee that will be allocated to the liquidity pool token holders
+    ///@param platformFee The fee that will be allocated to the platform and send to the fee manager
     function setFees(uint16 liquditiyProviderFee, uint16 platformFee) external onlyOwner {
-        require(liquditiyProviderFee + platformFee <= 5000, "FeeManager: fees too high");
+        require(liquditiyProviderFee + platformFee <= 500, "FeeManager: fees too high");
         _liquditiyProviderFee = liquditiyProviderFee;
         _platformFee = platformFee;
     }
 
+    ///@notice Transfer ETH to an address can only be called by the Governor contract
+    ///@param to The address to transfer the ETH to
+    ///@param amount The amount of ETH to transfer
     function transferETH(address payable to, uint256 amount) external onlyOwner {
         to.transfer(amount);
     }
 
+    ///@notice Transfer ERC20 token to an address can only be called by the Governor contract
+    ///@param token The address of the ERC20 token
+    ///@param to The address to transfer the ERC20 token to
+    ///@param amount The amount of ERC20 token to transfer
     function transferERC20(address token, address to, uint256 amount) external onlyOwner {
         IERC20(token).safeTransfer(to, amount);
     }
