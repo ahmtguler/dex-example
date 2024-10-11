@@ -1,1 +1,1 @@
-export const baseUrl = "http://localhost:8080/api";
+export const baseUrl = "https://dex-backend-1k1h.onrender.com/api";
