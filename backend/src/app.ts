@@ -1,8 +1,10 @@
 import express from 'express';
 import * as Routes from './routes';
+import cors from 'cors';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/burn', Routes.burnRoutes);
 app.use('/api/mint', Routes.mintRoutes);

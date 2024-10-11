@@ -180,12 +180,12 @@ export async function index() {
     }
 }
 
-function calculatePrice(reserveTVER: string, reserveTHB: string) {
+function calculatePrice(reserveTVER: bigint, reserveTHB: bigint) {
     const oneTVER = parseEther('1');
-    const reserveTVER_BN = parseUnits(reserveTVER, 0);
-    const reserveTHB_BN = parseUnits(reserveTHB, 0);
-    if (reserveTVER_BN == 0n || reserveTHB_BN == 0n) return '0';
-    const price = (oneTVER * reserveTHB_BN / reserveTVER_BN) / parseUnits('1', 12);
+    // const reserveTVER_BN = parseUnits(reserveTVER, 0);
+    // const reserveTHB_BN = parseUnits(reserveTHB, 0);
+    if (reserveTVER == 0n || reserveTHB == 0n) return '0';
+    const price = (oneTVER * reserveTHB / reserveTVER) / parseUnits('1', 12);
     return price.toString();
 }
     

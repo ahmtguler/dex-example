@@ -5,6 +5,7 @@ import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -14,83 +15,27 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { readableAmount } from "@/utils/readableAmount"
 
 export const description = "A line chart"
 
-const chartData = [
-  { time: " 21:04 ", THB: 186 },
-  { time: " 21:05 ", THB: 305 },
-  { time: " 21:06 ", THB: 237 },
-  { time: " 21:07 ", THB: 73 },
-  { time: " 21:08 ", THB: 209 },
-  { time: " 21:09 ", THB: 214 },
-  { time: " 21:10 ", THB: 186 },
-  { time: " 21:11 ", THB: 305 },
-  { time: " 21:12 ", THB: 237 },
-  { time: " 21:13 ", THB: 73 },
-  { time: " 21:14 ", THB: 209 },
-  { time: " 21:15 ", THB: 214 },
-  { time: " 21:16 ", THB: 186 },
-  { time: " 21:17 ", THB: 305 },
-  { time: " 21:18 ", THB: 237 },
-  { time: " 21:04 ", THB: 186 },
-  { time: " 21:05 ", THB: 305 },
-  { time: " 21:06 ", THB: 237 },
-  { time: " 21:07 ", THB: 73 },
-  { time: " 21:08 ", THB: 209 },
-  { time: " 21:09 ", THB: 214 },
-  { time: " 21:10 ", THB: 186 },
-  { time: " 21:11 ", THB: 305 },
-  { time: " 21:12 ", THB: 237 },
-  { time: " 21:13 ", THB: 73 },
-  { time: " 21:14 ", THB: 209 },
-  { time: " 21:15 ", THB: 214 },
-  { time: " 21:16 ", THB: 186 },
-  { time: " 21:17 ", THB: 305 },
-  { time: " 21:18 ", THB: 237 },
-  { time: " 21:05 ", THB: 305 },
-  { time: " 21:06 ", THB: 237 },
-  { time: " 21:07 ", THB: 73 },
-  { time: " 21:08 ", THB: 209 },
-  { time: " 21:09 ", THB: 214 },
-  { time: " 21:10 ", THB: 186 },
-  { time: " 21:11 ", THB: 305 },
-  { time: " 21:12 ", THB: 237 },
-  { time: " 21:13 ", THB: 73 },
-  { time: " 21:14 ", THB: 209 },
-  { time: " 21:15 ", THB: 214 },
-  { time: " 21:16 ", THB: 186 },
-  { time: " 21:17 ", THB: 305 },
-  { time: " 21:18 ", THB: 237 },
-  { time: " 21:05 ", THB: 305 },
-  { time: " 21:06 ", THB: 237 },
-  { time: " 21:07 ", THB: 73 },
-  { time: " 21:08 ", THB: 209 },
-  { time: " 21:09 ", THB: 214 },
-  { time: " 21:10 ", THB: 186 },
-  { time: " 21:11 ", THB: 305 },
-  { time: " 21:12 ", THB: 237 },
-  { time: " 21:13 ", THB: 73 },
-  { time: " 21:14 ", THB: 209 },
-  { time: " 21:15 ", THB: 214 },
-  { time: " 21:16 ", THB: 186 },
-  { time: " 21:17 ", THB: 305 },
-  { time: " 21:18 ", THB: 237 },
-  { time: " 21:05 ", THB: 305 },
-  { time: " 21:06 ", THB: 237 },
-  { time: " 21:07 ", THB: 73 },
-  { time: " 21:08 ", THB: 209 },
-  { time: " 21:09 ", THB: 214 },
-  { time: " 21:10 ", THB: 186 },
-  { time: " 21:11 ", THB: 305 },
-  { time: " 21:12 ", THB: 237 },
-  { time: " 21:13 ", THB: 73 },
-  { time: " 21:14 ", THB: 209 },
-  { time: " 21:15 ", THB: 214 },
-  { time: " 21:16 ", THB: 186 },
-  { time: " 21:17 ", THB: 305 },
-  { time: " 21:18 ", THB: 237 },
-]
+export interface Price {
+  price: string;
+  timestamp: string;
+}
+
+export interface Volume {
+  thbAmount: string;
+  timestamp: string;
+}
+
+interface PriceChartProps {
+
+  prices: Price[];
+
+  volumes: Volume[];
+
+}
 
 const chartConfig = {
   desktop: {
@@ -99,12 +44,30 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function PriceChart() {
+const sevenHours = 7 * 3600;
+const day = 24 * 3600;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const PriceChart: React.FC<PriceChartProps> = ({ prices, volumes }) => {
+  console.log('prices', prices)
+  console.log('volumes', volumes)
+
+  const chartData = prices.map((price) => ({
+    time: (' ' + Math.floor(((Number(price.timestamp) + sevenHours) % day) / 3600) + ':' + Math.floor((Number(price.timestamp)) % 3600 / 60) + ' '),
+    THB: (Number(price.price) / 1e4).toFixed(2),
+  }))
+
+  let totalVolume = 0n;
+  for (const volume of volumes) {
+    totalVolume += BigInt(volume.thbAmount);
+  }
+
 
   return (
     <Card className="w-full h-full">
       <CardHeader>
         <CardTitle>TVER / THB</CardTitle>
+        <CardDescription>Total Volume Last 2 Hours: {readableAmount(totalVolume, 2)} THB</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
