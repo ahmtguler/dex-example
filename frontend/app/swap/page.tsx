@@ -455,8 +455,8 @@ export default function Swap() {
                                 <TableCell className="font-medium">{swap.recipient}</TableCell>
                                 <TableCell>{swap.tokenIn}</TableCell>
                                 <TableCell>{swap.tokenOut}</TableCell>
-                                <TableCell>{readableAmount(swap.amountIn, 4)}</TableCell>
-                                <TableCell>{readableAmount(swap.amountOut, 4)}</TableCell>
+                                <TableCell>{Number(readableAmount(swap.amountIn, 2)).toLocaleString()}</TableCell>
+                                <TableCell>{Number(readableAmount(swap.amountOut, 2)).toLocaleString()}</TableCell>
                                 <TableCell>{new Date(Number(swap.timestamp) * 1000).toLocaleString('en-GB', { timeZone: 'Asia/Bangkok' })}</TableCell>
                             </TableRow>
                         )))}

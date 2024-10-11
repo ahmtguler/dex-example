@@ -50,7 +50,7 @@ const day = 24 * 3600;
 export const PriceChart: React.FC<PriceChartProps> = ({ prices, volumes }) => {
   const chartData = prices.map((price) => ({
     time: (' ' + Math.floor(((Number(price.timestamp) + sevenHours) % day) / 3600) + ':' + (Math.floor((Number(price.timestamp)) % 3600 / 60) < 10 ? '0' + Math.floor((Number(price.timestamp)) % 3600 / 60) : Math.floor((Number(price.timestamp)) % 3600 / 60)) + ' '),
-    THB: (Number(price.price) / 1e4).toFixed(2),
+    THB: (Number(price.price) / 1e6).toFixed(2),
   }))
 
   let totalVolume = 0n;
@@ -63,7 +63,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ prices, volumes }) => {
     <Card className="w-full h-full">
       <CardHeader>
         <CardTitle>TVER / THB</CardTitle>
-        <CardDescription>Total Volume Last 2 Hours: {readableAmount(totalVolume, 2)} THB</CardDescription>
+        <CardDescription>Total Volume Last 2 Hours: {Number(readableAmount(totalVolume, 2)).toLocaleString()} THB</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

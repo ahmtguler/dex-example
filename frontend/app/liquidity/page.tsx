@@ -193,7 +193,7 @@ export default function Liquidity() {
         })
         unified.sort((a, b) => b.timestamp - a.timestamp)
         setUnifiedData(unified)
-    } , [mintData, burnData])
+    }, [mintData, burnData])
 
     const mint = async (token: string) => {
         if (!signer) {
@@ -390,15 +390,15 @@ export default function Liquidity() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <Label htmlFor="amountTVER">Amount TVER</Label>
-                                <Button
+                                <div className="flex justify-between">
+                                    <Label htmlFor="amountTVER">Amount TVER</Label>
+                                    <Button
                                         variant='ghost'
                                         size='sm'
                                         className="-mt-3"
                                         onClick={() => mint('TVER')}
                                     >Mint</Button>
-                            </div>
+                                </div>
                                 <Input
                                     id="amountTVER"
                                     placeholder="Enter amount"
@@ -407,15 +407,15 @@ export default function Liquidity() {
                                 />
                             </div>
                             <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <Label htmlFor="amountTHB">Amount THB</Label>
-                                <Button
+                                <div className="flex justify-between">
+                                    <Label htmlFor="amountTHB">Amount THB</Label>
+                                    <Button
                                         variant='ghost'
                                         size='sm'
                                         className="-mt-3"
                                         onClick={() => mint('TVER')}
                                     >Mint</Button>
-                            </div>
+                                </div>
                                 <Input
                                     id="amountTHB"
                                     placeholder="Enter amount"
@@ -428,43 +428,43 @@ export default function Liquidity() {
                             {(isConnected) ? (
                                 <div className="flex flex-row items-center justify-center space-x-4">
 
-                                <Sheet>
-                                    <SheetTrigger asChild>
-                                        <Button variant="outline">
-                                            <History className="icon" />
-                                        </Button>
-                                    </SheetTrigger>
-                                    <SheetContent>
-                                        <SheetHeader>
-                                            <SheetTitle>User Liquidity History</SheetTitle>
-                                            <SheetDescription>
-                                                A list of your liquidity transactions
-                                            </SheetDescription>
-                                        </SheetHeader>
-                                        <div className="grid gap-4 py-4">
-                                            {unifiedData.map((data, index) => (
-                                                <div key={index} className="flex flex-row items-center justify-between space-x-4">
-                                                    <div>
-                                                        {data.type === 'mint' ? (
-                                                            <span className="text-green-500">Add LP</span>
-                                                        ) : (
-                                                            <span className="text-red-500">Remove LP</span>
-                                                        )}
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button variant="outline">
+                                                <History className="icon" />
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent>
+                                            <SheetHeader>
+                                                <SheetTitle>User Liquidity History</SheetTitle>
+                                                <SheetDescription>
+                                                    A list of your liquidity transactions
+                                                </SheetDescription>
+                                            </SheetHeader>
+                                            <div className="grid gap-4 py-4">
+                                                {unifiedData.map((data, index) => (
+                                                    <div key={index} className="flex flex-row items-center justify-between space-x-4">
+                                                        <div>
+                                                            {data.type === 'mint' ? (
+                                                                <span className="text-green-500">Add LP</span>
+                                                            ) : (
+                                                                <span className="text-red-500">Remove LP</span>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            {readableAmount(data.amountTVER, 2)} TVER
+                                                        </div>
+                                                        <div>
+                                                            {readableAmount(data.amountTHB, 2)} THB
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        {readableAmount(data.amountTVER,2)} TVER
-                                                    </div>
-                                                    <div>
-                                                        {readableAmount(data.amountTHB,2)} THB
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
-                                <Button
-                                    onClick={addLiquidity}
-                                >Add Liquidity</Button>
+                                                ))}
+                                            </div>
+                                        </SheetContent>
+                                    </Sheet>
+                                    <Button
+                                        onClick={addLiquidity}
+                                    >Add Liquidity</Button>
                                 </div>
                             ) : (
                                 <Connect />
@@ -502,9 +502,46 @@ export default function Liquidity() {
                         </CardContent>
                         <CardFooter className="flex justify-center">
                             {(isConnected) ? (
-                                <Button
-                                    onClick={removeLiquidity}
-                                >Remove Liquidity</Button>
+                                <div className="flex flex-row items-center justify-center space-x-4">
+
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button variant="outline">
+                                                <History className="icon" />
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent>
+                                            <SheetHeader>
+                                                <SheetTitle>User Liquidity History</SheetTitle>
+                                                <SheetDescription>
+                                                    A list of your liquidity transactions
+                                                </SheetDescription>
+                                            </SheetHeader>
+                                            <div className="grid gap-4 py-4">
+                                                {unifiedData.map((data, index) => (
+                                                    <div key={index} className="flex flex-row items-center justify-between space-x-4">
+                                                        <div>
+                                                            {data.type === 'mint' ? (
+                                                                <span className="text-green-500">Add LP</span>
+                                                            ) : (
+                                                                <span className="text-red-500">Remove LP</span>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            {readableAmount(data.amountTVER, 2)} TVER
+                                                        </div>
+                                                        <div>
+                                                            {readableAmount(data.amountTHB, 2)} THB
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </SheetContent>
+                                    </Sheet>
+                                    <Button
+                                        onClick={removeLiquidity}
+                                    >Remove Liquidity</Button>
+                                </div>
                             ) : (
                                 <Connect />
                             )}
