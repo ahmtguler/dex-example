@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from "ethers";
+import { JsonRpcProvider, parseEther, parseUnits } from "ethers";
 import { Pool__factory } from "./types/Pool__factory";
 import dotenv from "dotenv";
 import {addBlock, getLastBlock, dropBlocks} from "../services/blockService";
@@ -7,6 +7,7 @@ import {addVolume} from "../services/volumeService";
 import { addMint } from "../services/mintService";
 import { addBurn } from "../services/burnService";
 import { addReserves } from "../services/syncService";
+import {addPrice} from "../services/priceService";
 
 
 dotenv.config();
@@ -169,6 +170,7 @@ export async function index() {
         if (syncs.length > 0) {
             for (const sync of syncs) {
                 await addReserves(sync.reserveTVER, sync.reserveTHB, sync.timestamp);
+                await addPrice(calculatePrice(sync.reserveTVER, sync.reserveTHB), sync.timestamp);
             }
         }
 
@@ -177,6 +179,17 @@ export async function index() {
         await sleep(5);
     }
 }
+
+function calculatePrice(reserveTVER: string, reserveTHB: string) {
+    const oneTVER = parseEther('1');
+    const reserveTVER_BN = parseUnits(reserveTVER, 0);
+    const reserveTHB_BN = parseUnits(reserveTHB, 0);
+    if (reserveTVER_BN == 0n || reserveTHB_BN == 0n) return '0';
+    const price = (oneTVER * reserveTHB_BN / reserveTVER_BN) / parseUnits('1', 12);
+    return price.toString();
+}
+    
+
 
 async function sleep(s: number) {
     return new Promise(resolve => setTimeout(resolve, s * 1000));

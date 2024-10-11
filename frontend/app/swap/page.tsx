@@ -21,6 +21,7 @@ import { TVER, THB } from "@/contracts/mintable-token"
 import { useEthersSigner, useEthersProvider } from "@/utils/ethers";
 import { toast } from "sonner";
 import { parseEther, parseUnits, MaxUint256 } from "ethers";
+import { PriceChart } from "@/components/price-chart";
 
 export default function Swap() {
     const { isConnected, address } = useAccount()
@@ -180,7 +181,7 @@ export default function Swap() {
 
 
     return (
-        <div className="flex flex-col items-center justify-center mt-32">
+        <div className="flex flex-row items-center justify-center mt-32 space-x-8">
             <Card className="w-[400px]">
                 <CardHeader>
                     <CardTitle>Swap</CardTitle>
@@ -286,6 +287,9 @@ export default function Swap() {
                     )}
                 </CardFooter>
             </Card>
+            <div className="w-[620px]">
+                <PriceChart/>
+                </div> 
         </div>
     );
 }
