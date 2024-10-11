@@ -14,8 +14,8 @@ const startServer = async () => {
         console.log(`Server is running on port ${PORT}`);
     });
 
-    await drop(); //? For testing purposes
-    await init(); //? For testing purposes
+    // await drop(); //? For testing purposes
+    // await init(); //? For testing purposes
     index();
 };
 
