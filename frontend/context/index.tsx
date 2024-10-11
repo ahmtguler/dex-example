@@ -11,12 +11,12 @@ import {
   cookieToInitialState,
   createStorage,
 } from "wagmi";
-import { hardhat, sepolia } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 
 export const config = getDefaultConfig({
   appName: "RainbowKit demo",
   projectId: "1b8eaa85a996988993be008f82249011",
-  chains: [hardhat, sepolia],
+  chains: [sepolia],
   ssr: true,
   storage: createStorage({
     storage: cookieStorage,

@@ -7,6 +7,10 @@ export const addBlock = async (lastIndexedBlockNumber: number, timestamp: number
             timestamp,
         });
         await block.save();
+        const oldBlocks = await Block.find({ timestamp: { $lt: timestamp - (3600) } });
+        if (oldBlocks.length > 0) {
+            await Block.deleteMany({ timestamp: { $lt: timestamp - (3600) } });
+        }
     } catch (error: any) {
         console.error(`Error: ${error.message}`);
     }

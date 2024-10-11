@@ -30,7 +30,7 @@ export async function index() {
     while (true) {
         const lastestBlock = await provider.getBlock('latest');
         if (!lastestBlock) {
-            await sleep(5);
+            await sleep(10);
             continue;
         }
         let timestamp = lastestBlock.timestamp;
@@ -39,14 +39,14 @@ export async function index() {
         const fromBlock = lastBlock.lastIndexedBlockNumber + 1;
         let toBlock = lastestBlock.number;
         if (fromBlock > toBlock) {
-            await sleep(5);
+            await sleep(10);
             continue;
         }
         if (toBlock - fromBlock > 499) {
             toBlock = fromBlock + 499;
             const block = await provider.getBlock(toBlock);
             if (!block) {
-                await sleep(5);
+                await sleep(10);
                 continue;
             }
             timestamp = block.timestamp;
@@ -176,7 +176,7 @@ export async function index() {
 
         await addBlock(toBlock, timestamp);
 
-        await sleep(5);
+        await sleep(10);
     }
 }
 
@@ -185,7 +185,7 @@ function calculatePrice(reserveTVER: bigint, reserveTHB: bigint) {
     // const reserveTVER_BN = parseUnits(reserveTVER, 0);
     // const reserveTHB_BN = parseUnits(reserveTHB, 0);
     if (reserveTVER == 0n || reserveTHB == 0n) return '0';
-    const price = (oneTVER * reserveTHB / reserveTVER) / parseUnits('1', 12);
+    const price = (oneTVER * reserveTHB / reserveTVER) / parseUnits('1', 10);
     return price.toString();
 }
     

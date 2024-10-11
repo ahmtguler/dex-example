@@ -201,7 +201,7 @@ export default function Swap() {
             //     error: 'Failed to mint',
             // })
             await tx.wait()
-            toast.success('Minted successfully')
+            toast.success('Minted 10,000 tokens successfully')
             setFetchTrigger(fetchTrigger + 1)
         } catch (e) {
             console.log(e)
