@@ -437,7 +437,7 @@ export default function Swap() {
                 </div>
             </div>
             <div className="flex flex-row items-center justify-center mt-4 mb-6">
-                <Table className="w-[678px]">
+                <Table className="w-[1000px]">
                     <TableCaption>A list of recent swaps.</TableCaption>
                     <TableHeader>
                         <TableRow>
@@ -446,6 +446,7 @@ export default function Swap() {
                             <TableHead>To</TableHead>
                             <TableHead>Sold</TableHead>
                             <TableHead>Bought</TableHead>
+                            <TableHead>Date</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -456,6 +457,7 @@ export default function Swap() {
                                 <TableCell>{swap.tokenOut}</TableCell>
                                 <TableCell>{readableAmount(swap.amountIn, 4)}</TableCell>
                                 <TableCell>{readableAmount(swap.amountOut, 4)}</TableCell>
+                                <TableCell>{new Date(Number(swap.timestamp) * 1000).toLocaleString('en-GB', { timeZone: 'Asia/Bangkok' })}</TableCell>
                             </TableRow>
                         )))}
                     </TableBody>
