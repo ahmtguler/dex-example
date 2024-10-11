@@ -31,10 +31,8 @@ import { parseEther, parseUnits, MaxUint256 } from "ethers";
 import { History } from "lucide-react";
 import {
     Sheet,
-    SheetClose,
     SheetContent,
     SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
     SheetTrigger,

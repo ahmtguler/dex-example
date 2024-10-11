@@ -36,10 +36,8 @@ import { readableAmount } from "@/utils/readableAmount";
 import { Price, Volume } from "@/components/price-chart";
 import {
     Sheet,
-    SheetClose,
     SheetContent,
     SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
