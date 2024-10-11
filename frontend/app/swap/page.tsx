@@ -141,12 +141,6 @@ export default function Swap() {
         return () => clearInterval(interval);
     }, [])
 
-
-    console.log('prices', prices)
-    console.log('volumes', volumes)
-    console.log('reserves', readableAmount(reserves?.reserveTVER!, 4), readableAmount(reserves?.reserveTHB!, 4))
-    console.log('swapData', swapData)
-
     React.useEffect(() => {
         const fetchBalancesAndAllowances = async () => {
             if (!address) return
@@ -183,7 +177,7 @@ export default function Swap() {
             }
         }
         fetchBalancesAndAllowances().catch(console.error)
-    }, [address, provider, fetchTrigger])
+    }, [address, provider, fetchTrigger, address])
 
     const mint = async (token: string) => {
         if (!signer) {
