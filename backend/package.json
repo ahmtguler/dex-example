@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "bun run index.ts",
-    "start": "bun run index.ts",
-    "build": "bun build index.ts"
+    "start": "./build/app",
+    "build": "bun build index.ts --minify --compile --outfile ./build/app"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

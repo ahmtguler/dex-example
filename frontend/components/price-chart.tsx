@@ -48,9 +48,6 @@ const day = 24 * 3600;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const PriceChart: React.FC<PriceChartProps> = ({ prices, volumes }) => {
-  console.log('prices', prices)
-  console.log('volumes', volumes)
-
   const chartData = prices.map((price) => ({
     time: (' ' + Math.floor(((Number(price.timestamp) + sevenHours) % day) / 3600) + ':' + (Math.floor((Number(price.timestamp)) % 3600 / 60) < 10 ? '0' + Math.floor((Number(price.timestamp)) % 3600 / 60) : Math.floor((Number(price.timestamp)) % 3600 / 60)) + ' '),
     THB: (Number(price.price) / 1e4).toFixed(2),
