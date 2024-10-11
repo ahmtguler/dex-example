@@ -13,8 +13,6 @@ This project is a decentralized exchange (DEX) built to trade between tokenized 
 -   [Testing](#testing)
 -   [Security](#security)
 -   [Gas Efficiency](#gas-efficiency)
--   [Additional Documentation](#additional-documentation)
--   [Contact](#contact)
 
 ## Overview
 
@@ -30,14 +28,14 @@ The project involves building a DEX where users can:
 ### Smart Contracts
 
 -   **Liquidity Pool & AMM:** Developed a custom pool for TVER and THB with price discovery using the constant product formula (x \* y = k).
--   **Swap Fees:** Implemented fee logic directing a portion to liquidity providers.
+-   **Swap Fees:** Implemented fee logic directing a portion to liquidity providers and another of it to a governed fee contract.
 -   **Governance:** Introduced a governance token and a governor contract overseeing a Fee Manager contract responsible for fee collection and distribution.
 -   **Transparency Over Optimization:** Designed the fee collection mechanism to be clear and transparent, intentionally not fully gas-optimized to illustrate fee distribution mechanics.
 -   **Libraries Used:** Leveraged OpenZeppelin’s well-audited contracts for reliability and security.
 
 ### Frontend
 
--   **Framework:** Built with Next.js and ShadCN UI library for a responsive and modern interface.
+-   **Framework:** Built with Next.js and shadcn UI library for a responsive and modern interface.
 -   **Wallet Connection:** Integrated RainbowKit for seamless MetaMask wallet connections, offering a better user experience compared to heavier alternatives like Web3Modal.
 -   **Trade & Liquidity Interface:** Developed a basic yet functional UI for adding/removing liquidity and trading between tokens.
 -   **Mint Functionality:** Enabled users to mint TVER and THB for testing purposes.
@@ -48,7 +46,7 @@ The project involves building a DEX where users can:
 -   **Framework:** Built with Bun, TypeScript, and Express for a fast and efficient development environment.
 -   **Data Handling:** Tracks trade data, liquidity pool statistics, and price changes. Included future-proof API endpoints for flexibility, though not all are utilized in the current frontend.
 -   **Charts:** Reflects volume and price changes in real-time on the frontend.
--   **Authentication:** Data is sourced from the public blockchain, minimizing the need for authentication in the current scope. Future plans include implementing SIWE (Sign-In with Ethereum) for enhanced security.
+-   **Authentication:** Data is sourced from the public blockchain, minimizing the need for authentication in the current scope. Further improvement might be done by implementing SIWE (Sign-In with Ethereum) for enhanced security.
 
 ## Architecture
 
@@ -92,24 +90,24 @@ The project is divided into three key components:
 
 2. **Setup Hardhat and Smart Contracts:** Navigate to the contracts directory and install dependencies. For local test RPC node and addresses provided by hardhat must be used.
 
-   ```bash
-   cd contract
-   bun install
-   npx hardhat test
-   npx hardhat solidity-coverage
-   npx hardhat node
-   npx hardhat run scripts/deploy.ts --network localnetwork
-   ```
+    ```bash
+    cd contract
+    bun install
+    npx hardhat test
+    npx hardhat solidity-coverage
+    npx hardhat node
+    npx hardhat run scripts/deploy.ts --network localnetwork
+    ```
 
 3. **Setup Backend API:** Navigate to the backend directory and install dependencies and
    Configure environment variables with your contract addresses and run the development server.
 
-   ```bash
-   cd backend
-   bun install && bun run dev
-   ```
+    ```bash
+    cd backend
+    bun install && bun run dev
+    ```
 
-4. **Setup Frontend**: Navigate to the backend directory and install dependencies and
+4. **Setup Frontend**: Navigate to the frontend directory and install dependencies and
    Configure environment variables with your contract addresses, api url and run the development server. Add hardhat network to chain list.
 
     ```bash
@@ -123,12 +121,12 @@ The project is divided into three key components:
 
 Comprehensive tests are written for the smart contracts using Hardhat to ensure reliability and security.
 
-   ```bash
-   cd contract
-   bun install
-   npx hardhat test
-   npx hardhat solidity-coverage
-   ```
+```bash
+cd contract
+bun install
+npx hardhat test
+npx hardhat solidity-coverage
+```
 
 ### Backend and Frontend
 
