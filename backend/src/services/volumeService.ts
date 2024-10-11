@@ -32,8 +32,8 @@ export const getVolumeFromTimestamp = async (timestamp: number) => {
 
 export const getVolumeLastWeeks = async (weeks: number) => {
     try {
-        const date = (Date.now() / 1000) - (weeks * 24 * 3600 * 7);
-        return await Volume.find({ timestamp: { $gte: date / 1000 } }).sort({ timestamp: 1 });
+        const date = Date.now() / 1000 - (weeks * 24 * 3600 * 7);
+        return await Volume.find({ timestamp: { $gte: date } }).sort({ timestamp: 1 });
     } catch (error: any) {
         console.error(`Error: ${error.message}`);
         return [];
@@ -43,7 +43,7 @@ export const getVolumeLastWeeks = async (weeks: number) => {
 export const getVolumeLastDays = async (days: number) => {
     try {
         const date = Date.now() / 1000 - (days * 24 * 3600);
-        return await Volume.find({ timestamp: { $gte: date / 1000 } }).sort({ timestamp: 1 });
+        return await Volume.find({ timestamp: { $gte: date } }).sort({ timestamp: 1 });
     } catch (error: any) {
         console.error(`Error: ${error.message}`);
         return [];
@@ -53,7 +53,7 @@ export const getVolumeLastDays = async (days: number) => {
 export const getVolumeLastHours = async (hours: number) => {
     try {
         const date = Date.now() / 1000 - (hours * 3600);
-        return await Volume.find({ timestamp: { $gte: date / 1000 } }).sort({ timestamp: 1 });
+        return await Volume.find({ timestamp: { $gte: date } }).sort({ timestamp: 1 });
     } catch (error: any) {
         console.error(`Error: ${error.message}`);
         return [];
