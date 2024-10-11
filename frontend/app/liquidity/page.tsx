@@ -452,10 +452,10 @@ export default function Liquidity() {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            {readableAmount(data.amountTVER, 2)} TVER
+                                                            {Number(readableAmount(data.amountTVER, 2)).toLocaleString()} TVER
                                                         </div>
                                                         <div>
-                                                            {readableAmount(data.amountTHB, 2)} THB
+                                                            {Number(readableAmount(data.amountTHB, 2)).toLocaleString()} THB
                                                         </div>
                                                     </div>
                                                 ))}
@@ -528,10 +528,10 @@ export default function Liquidity() {
                                                             )}
                                                         </div>
                                                         <div>
-                                                            {readableAmount(data.amountTVER, 2)} TVER
+                                                            {Number(readableAmount(data.amountTVER, 2)).toLocaleString()} TVER
                                                         </div>
                                                         <div>
-                                                            {readableAmount(data.amountTHB, 2)} THB
+                                                            {Number(readableAmount(data.amountTHB, 2)).toLocaleString()} THB
                                                         </div>
                                                     </div>
                                                 ))}

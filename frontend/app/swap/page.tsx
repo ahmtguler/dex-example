@@ -412,9 +412,8 @@ export default function Swap() {
                                                         <ArrowRight className="icon" />
                                                         <div className="font-medium">{swap.tokenOut}</div>
                                                     </div>
-                                                    <div className="font-medium">{readableAmount(swap.amountIn, 4)}</div>
-                                                    <div className="font-medium">{readableAmount(swap.amountOut, 4)}</div>
-                                                    {/* <div className="font-medium">{new Date(Number(swap.timestamp) * 1000).toLocaleString()}</div> */}
+                                                    <div className="font-medium">{Number(readableAmount(swap.amountIn, 2)).toLocaleString()}</div>
+                                                    <div className="font-medium">{Number(readableAmount(swap.amountOut, 2)).toLocaleString()}</div>
                                                 </div>
                                             )))}
                                         </div>
@@ -451,8 +450,8 @@ export default function Swap() {
                     </TableHeader>
                     <TableBody>
                         {swapData && (swapData.map((swap) => (
-                            <TableRow key={swap.timestamp}>
-                                <TableCell className="font-medium">{swap.recipient}</TableCell>
+                            <TableRow>
+                                <TableCell>{swap.recipient}</TableCell>
                                 <TableCell>{swap.tokenIn}</TableCell>
                                 <TableCell>{swap.tokenOut}</TableCell>
                                 <TableCell>{Number(readableAmount(swap.amountIn, 2)).toLocaleString()}</TableCell>
